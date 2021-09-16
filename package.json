@@ -45,7 +45,7 @@
 	},
 	"dependencies": {
 		"@aicacia/core": "^0.2.12",
-		"@aicacia/peer": "https+ssh://git@github.com/aicacia/ts-peer.git#def1bafa255ea8ae1b696026bf74054aa02390a2",
+		"@aicacia/peer": "git+https://git@github.com/aicacia/ts-peer.git#def1bafa255ea8ae1b696026bf74054aa02390a2",
 		"@aicacia/rand": "^0.2.6",
 		"eventemitter3": "^4.0.7",
 		"localforage": "^1.10.0",
