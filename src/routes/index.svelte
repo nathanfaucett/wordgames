@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import Layout from '$lib/Layout.svelte';
 	import { generateRoomId } from '$lib/state/p2p';
 
@@ -11,7 +12,7 @@
 	<div class="text-center">
 		<a
 			class="bg-blue-600 inline-block text-white text-2xl py-2 px-8"
-			href={`/lobby?room=${generateRoomId()}`}>Host</a
+			href={`${base}/lobby?room=${generateRoomId()}`}>Host</a
 		>
 	</div>
 	<div class="flex flex-1 mx-auto justify-self-center mt-4 max-w-sm">
@@ -23,7 +24,7 @@
 		/>
 		<a
 			class="bg-blue-600 hover:bg-blue-500 text-white flex-grow-0 text-lg py-2 px-4"
-			href={`/lobby?room=${roomId}`}>Join</a
+			href={`${base}/lobby?room=${roomId}`}>Join</a
 		>
 	</div>
 </Layout>

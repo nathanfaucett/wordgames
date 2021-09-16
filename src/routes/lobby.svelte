@@ -20,6 +20,7 @@
 	import { goto } from '$app/navigation';
 	import Layout from '$lib/Layout.svelte';
 	import { browser } from '$app/env';
+	import { base } from '$app/paths';
 
 	export let roomId: string;
 	let name: string;
@@ -40,7 +41,7 @@
 	}
 
 	$: if (browser && $game.started) {
-		goto(`/game?room=${roomId}`);
+		goto(`${base}/game?room=${roomId}`);
 	}
 
 	async function onStart() {

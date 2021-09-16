@@ -14,6 +14,7 @@
 
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { base } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { getOrCreateRoom, room } from '$lib/state/p2p';
 	import { game } from '$lib/state/game';
@@ -24,7 +25,7 @@
 	export let roomId: string;
 
 	$: if (browser && !$game.started) {
-		goto(`/lobby?room=${roomId}`);
+		goto(`${base}/lobby?room=${roomId}`);
 	}
 
 	onMount(() => {

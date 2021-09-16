@@ -6,10 +6,11 @@
 		"tauri": "tauri",
 		"svelte-kit": "svelte-kit",
 		"clean": "rm -rf node_modules/.vite .svelte-kit build",
-		"peerjs": "peerjs --host 192.168.1.110 --port 8080 --key peerjs --path /",
+		"peerjs": "peerjs --port 8080 --key peerjs --path /",
 		"web": "svelte-kit dev --host --open",
 		"web.build": "svelte-kit build",
 		"web.preview": "svelte-kit preview",
+		"web.clean": "rm -rf .svelte-kit build node_modules/.vite",
 		"desktop": "tauri dev",
 		"desktop.build": "tauri build",
 		"check": "svelte-check --tsconfig ./tsconfig.json",
@@ -19,7 +20,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "next",
-		"@sveltejs/kit": "next",
+		"@sveltejs/kit": "1.0.0-next.147",
 		"@tauri-apps/api": "^1.0.0-beta.8",
 		"@tauri-apps/cli": "^1.0.0-beta.10",
 		"@types/uuid": "^8.3.1",
@@ -36,12 +37,12 @@
 		"postcss-load-config": "^3.1.0",
 		"prettier": "^2.4.0",
 		"prettier-plugin-svelte": "^2.4.0",
-		"svelte": "^3.42.4",
-		"svelte-check": "^2.2.5",
-		"svelte-preprocess": "^4.7.4",
+		"svelte": "^3.42.6",
+		"svelte-check": "^2.2.6",
+		"svelte-preprocess": "^4.9.4",
 		"tailwindcss": "^2.2.15",
 		"tslib": "^2.3.1",
-		"typescript": "^4.4.2"
+		"typescript": "^4.4.3"
 	},
 	"dependencies": {
 		"@aicacia/core": "^0.2.12",

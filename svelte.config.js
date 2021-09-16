@@ -12,9 +12,13 @@ const config = {
 	],
 
 	kit: {
-		adapter: adapter({
-			fallback: 'index.html'
-		}),
+		adapter: adapter(),
+		paths: process.env.USE_BASE_PATH
+			? {
+					base: '/wordgames'
+			  }
+			: {},
+		ssr: false,
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#app'
 	}
