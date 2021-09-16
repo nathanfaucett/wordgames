@@ -7,7 +7,7 @@ import { get, writable } from 'svelte/store';
 import ee3 from 'eventemitter3';
 import { v4 } from 'uuid';
 
-const APP_ID = 'p2pgame-example-com-',
+const APP_ID = 'wordgames-github-io-',
 	PEED_ID_KEY = 'peer_id';
 
 export const peer = writable<Peer | null>(null),
