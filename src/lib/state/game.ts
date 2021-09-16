@@ -2,7 +2,7 @@ import { State } from '@aicacia/peer';
 import { derived, get, writable } from 'svelte/store';
 import type { Readable } from 'svelte/store';
 import { p2pEmitter } from './p2p';
-import { EventEmitter } from 'eventemitter3';
+import ee3 from 'eventemitter3';
 
 const state = writable<State<Game> | null>(null);
 
@@ -10,7 +10,7 @@ export interface Game {
 	started: boolean;
 }
 
-export const gameEmitter = new EventEmitter<{ state: (state: State<Game>) => void }>();
+export const gameEmitter = new ee3.EventEmitter<{ state: (state: State<Game>) => void }>();
 
 export const game: Readable<Game> = derived(state, (state) => state?.get() || { started: false });
 

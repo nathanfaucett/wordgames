@@ -2,7 +2,7 @@ import { State } from '@aicacia/peer';
 import { derived, get, writable } from 'svelte/store';
 import type { Readable, Writable } from 'svelte/store';
 import { getPeerIdFromAppPeerId, p2pEmitter, getPeerId } from './p2p';
-import { EventEmitter } from 'eventemitter3';
+import ee3 from 'eventemitter3';
 
 const state: Writable<State<IUsers> | null> = writable(null);
 
@@ -30,7 +30,7 @@ export interface IUsers {
 	byId: { [id: string]: IUser };
 }
 
-export const usersEmitter = new EventEmitter<{ state: (state: State<IUsers>) => void }>();
+export const usersEmitter = new ee3.EventEmitter<{ state: (state: State<IUsers>) => void }>();
 
 export const users: Readable<IUsers> = derived(state, (state) => {
 	if (state) {

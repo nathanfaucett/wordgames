@@ -4,7 +4,7 @@ import { random } from '@aicacia/rand';
 import { range } from '@aicacia/core';
 import { getItem, setItem } from 'localforage';
 import { get, writable } from 'svelte/store';
-import { EventEmitter } from 'eventemitter3';
+import ee3 from 'eventemitter3';
 import { v4 } from 'uuid';
 
 const APP_ID = 'p2pgame-example-com-',
@@ -13,7 +13,7 @@ const APP_ID = 'p2pgame-example-com-',
 export const peer = writable<Peer | null>(null),
 	room = writable<Room | null>(null);
 
-export const p2pEmitter = new EventEmitter<{
+export const p2pEmitter = new ee3.EventEmitter<{
 	peer: (peer: Peer) => void;
 	room: (room: Room) => void;
 }>();
