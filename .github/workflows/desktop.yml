@@ -12,6 +12,9 @@ jobs:
         platform: [macos-latest, ubuntu-latest, windows-latest]
 
     runs-on: ${{ matrix.platform }}
+    env:
+      VITE_PEER_HOST: 0.peerjs.com
+      VITE_PEER_PORT: 443
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1

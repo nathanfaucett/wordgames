@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       USE_BASE_PATH: true
+      VITE_PEER_HOST: 0.peerjs.com
+      VITE_PEER_PORT: 443
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
