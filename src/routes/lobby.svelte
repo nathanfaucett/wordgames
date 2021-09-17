@@ -21,12 +21,12 @@
 	import Layout from '$lib/Layout.svelte';
 	import { browser } from '$app/env';
 	import { base } from '$app/paths';
-	import Timer from '$lib/Timer.svelte';
 
 	export let roomId: string;
 	let name: string;
 
-	$: usersSort = (a: IUser, b: IUser) => (a.id === $user?.id ? -1 : b.id === $user?.id ? 1 : 0);
+	$: userId = $user?.id;
+	$: usersSort = (a: IUser, b: IUser) => a.id.localeCompare(b.id);
 	$: userList = Object.values($users.byId).sort(usersSort);
 
 	async function onChange() {
@@ -76,16 +76,19 @@
 	};
 
 	let qrcode: HTMLDivElement;
+	let prevRoomId: string;
 
-	onMount(() => {
-		getOrCreateRoom(roomId);
-
-		const qr = new window.QRious({
+	$: if (qrcode && prevRoomId !== roomId) {
+		prevRoomId = roomId;
+		new window.QRious({
 			element: qrcode,
 			size: 500,
 			value: location.href
 		});
-		console.log(qr);
+	}
+
+	onMount(() => {
+		getOrCreateRoom(roomId);
 	});
 </script>
 
@@ -119,7 +122,7 @@
 			Team 1: {countTeam(userList, 1)} - Team 2: {countTeam(userList, 2)}
 		</h1>
 		{#each userList as user}
-			<div class="grid grid-cols-2">
+			<div class="grid grid-cols-2" class:bg-gray-500={userId === user.id}>
 				<div class="text-left">
 					<p class="text-2xl mb-2 font-bold">{user.name}</p>
 				</div>
@@ -169,7 +172,7 @@
 			disabled={userList.length < 2}>Start</button
 		>
 	</div>
-	<div class="text-center">
+	<div class="text-center mt-4">
 		<img class="inline-block" bind:this={qrcode} alt="QRCode" />
 	</div>
 	<div class="flex mt-4 justify-center">

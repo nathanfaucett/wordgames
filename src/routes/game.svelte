@@ -17,7 +17,7 @@
 	import { base } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import { getOrCreateRoom, room } from '$lib/state/p2p';
-	import { game, next, skipWord, startTimer, stopTimer } from '$lib/state/game';
+	import { game, next, skipWord, startTimer, start } from '$lib/state/game';
 	import { user, users } from '$lib/state/users';
 	import Layout from '$lib/Layout.svelte';
 	import { browser } from '$app/env';
@@ -36,7 +36,7 @@
 	$: if (prevIsYourTurn !== isYourTurn) {
 		prevIsYourTurn = isYourTurn;
 
-		if (isYourTurn) {
+		if (isYourTurn && $game.timer === 0) {
 			startTimer();
 		}
 	}
@@ -63,7 +63,7 @@
 		{#if $game.timer === 0}
 			<div class="flex mt-4 justify-center">
 				<button
-					on:click={next}
+					on:click={start}
 					class="bg-blue-600 hover:bg-blue-500 text-white text-lg mt-4 py-2 px-8">Start</button
 				>
 			</div>
