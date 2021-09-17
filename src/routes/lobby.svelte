@@ -16,11 +16,12 @@
 	import { onMount } from 'svelte';
 	import { getOrCreateRoom, getPeerId } from '$lib/state/p2p';
 	import { emptyUser, getUsersState, IUser, Team, user, users } from '$lib/state/users';
-	import { game, getGameState } from '$lib/state/game';
+	import { game, getGameState, startGame, Words } from '$lib/state/game';
 	import { goto } from '$app/navigation';
 	import Layout from '$lib/Layout.svelte';
 	import { browser } from '$app/env';
 	import { base } from '$app/paths';
+	import Timer from '$lib/Timer.svelte';
 
 	export let roomId: string;
 	let name: string;
@@ -44,26 +45,16 @@
 		goto(`${base}/game?room=${roomId}`);
 	}
 
-	async function onStart() {
-		const gameState = await getGameState();
-
-		gameState.change((state) => {
-			state.started = true;
-		});
-	}
-
 	let nameInput: HTMLInputElement;
 
 	function createOnSetTeam(user: IUser, team: Team) {
-		return function onSetTeam(e: Event) {
-			e.preventDefault();
-
+		return async function onSetTeam(e: Event) {
 			if (user.team !== team) {
-				getUsersState().then((usersState) =>
-					usersState.change((users) => {
-						users.byId[user.id].team = team;
-					})
-				);
+				const usersState = await getUsersState();
+
+				usersState.change((users) => {
+					users.byId[user.id].team = team;
+				});
 			}
 		};
 	}
@@ -72,8 +63,29 @@
 		return users.filter((user) => user.team === team).length;
 	}
 
+	$: onSelectWords = async (e: Event & { currentTarget: EventTarget & HTMLSelectElement }) => {
+		const words = e.currentTarget.value as Words;
+
+		if (words !== $game.words) {
+			const gameState = await getGameState();
+
+			gameState.change((game) => {
+				game.words = words;
+			});
+		}
+	};
+
+	let qrcode: HTMLDivElement;
+
 	onMount(() => {
 		getOrCreateRoom(roomId);
+
+		const qr = new window.QRious({
+			element: qrcode,
+			size: 500,
+			value: location.href
+		});
+		console.log(qr);
 	});
 </script>
 
@@ -89,6 +101,19 @@
 			on:change={onChange}
 		/>
 	</div>
+	<div class="max-w-sm mx-auto mt-2">
+		<label for="words">Words</label>
+		<select
+			id="words"
+			value={$game.words}
+			on:change|preventDefault={onSelectWords}
+			class="bg-gray-200 focus:bg-white w-full py-2 px-4"
+		>
+			{#each Object.keys(Words) as word}
+				<option value={Words[word]}>{word}</option>
+			{/each}
+		</select>
+	</div>
 	<div class="mt-2 mb-4 max-w-md mx-auto">
 		<h1 class="text-3xl text-center mb-2">
 			Team 1: {countTeam(userList, 1)} - Team 2: {countTeam(userList, 2)}
@@ -102,6 +127,7 @@
 					<div
 						class="bg-blue-600 hover:bg-blue-500 text-white inline-block cursor-pointer py-2 px-4"
 						class:bg-blue-300={user.team === 2}
+						on:click={createOnSetTeam(user, 1)}
 					>
 						<label for={`${user.id}-1`} class="cursor-pointer">Team 1</label>
 						<input
@@ -110,13 +136,14 @@
 							value="1"
 							type="radio"
 							class="ml-2 cursor-pointer"
-							on:click={createOnSetTeam(user, 1)}
+							on:click|preventDefault
 							checked={user.team === 1}
 						/>
 					</div>
 					<div
 						class="bg-blue-600 hover:bg-blue-500 text-white inline-block cursor-pointer py-2 px-4"
 						class:bg-blue-300={user.team === 1}
+						on:click={createOnSetTeam(user, 2)}
 					>
 						<label for={`${user.id}-2`} class="cursor-pointer">Team 2</label>
 						<input
@@ -125,7 +152,7 @@
 							value="2"
 							type="radio"
 							class="ml-2 cursor-pointer"
-							on:click={createOnSetTeam(user, 2)}
+							on:click|preventDefault
 							checked={user.team === 2}
 						/>
 					</div>
@@ -138,8 +165,16 @@
 			class="bg-blue-600 text-white text-lg py-2 px-4"
 			class:bg-blue-100={userList.length < 2}
 			class:hover:bg-blue-500={userList.length > 1}
-			on:click={onStart}
+			on:click={startGame}
 			disabled={userList.length < 2}>Start</button
+		>
+	</div>
+	<div class="text-center">
+		<img class="inline-block" bind:this={qrcode} alt="QRCode" />
+	</div>
+	<div class="flex mt-4 justify-center">
+		<a href={`${base}/`} class="bg-blue-600 hover:bg-blue-500 text-white text-lg mt-4 py-2 px-8"
+			>Exit</a
 		>
 	</div>
 </Layout>

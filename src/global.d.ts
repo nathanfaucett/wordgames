@@ -8,7 +8,25 @@ declare global {
 		VITE_PEER_PORT: string;
 	}
 
+	interface IQRiousOptions {
+		background?: string;
+		backgroundAlpha?: number;
+		element: HTMLElement;
+		foreground?: string;
+		foregroundAlpha?: number;
+		level?: 'L' | 'M' | 'Q' | 'H';
+		mime?: string;
+		padding?: number;
+		size?: number;
+		value?: string;
+	}
+
+	class QRious {
+		constructor(options: IQRiousOptions);
+	}
+
 	interface Window {
 		Peer: typeof PeerJS;
+		QRious: typeof QRious;
 	}
 }

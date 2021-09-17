@@ -1,7 +1,7 @@
 import { State } from '@aicacia/peer';
 import { derived, get, writable } from 'svelte/store';
 import type { Readable, Writable } from 'svelte/store';
-import { getPeerIdFromAppPeerId, p2pEmitter, getPeerId } from './p2p';
+import { p2pEmitter, getPeerId } from './p2p';
 import ee3 from 'eventemitter3';
 
 const state: Writable<State<IUsers> | null> = writable(null);
@@ -13,7 +13,7 @@ export function emptyUsers(): IUsers {
 export function emptyUser(id: string): IUser {
 	return {
 		id,
-		name: getPeerIdFromAppPeerId(id),
+		name: 'Unknown',
 		team: 1
 	};
 }
