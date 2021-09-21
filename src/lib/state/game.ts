@@ -8,7 +8,7 @@ import { XorShiftRng } from '@aicacia/rand';
 import { getWord } from './words';
 
 const state = writable<State<IGame> | null>(null);
-const DEFAULT_TIME = 5;
+const DEFAULT_TIME = 60;
 
 export enum Words {
 	Easy = 'easy',
