@@ -66,9 +66,11 @@ function forceRefresh(this: Room) {
 }
 
 export async function getOrCreateRoom(roomId: string): Promise<Room> {
-	const oldRoom = get(room);
+	const oldRoom = get(room),
+		fullRoomId = getAppPeerId(roomId);
+
 	if (oldRoom) {
-		if (oldRoom.getRoomId() !== roomId) {
+		if (oldRoom.getRoomId() !== fullRoomId) {
 			oldRoom.off(AutoReconnectingPeerEvent.Connection, forceRefresh);
 			oldRoom.off(AutoReconnectingPeerEvent.Disconnection, forceRefresh);
 			oldRoom.close();
@@ -78,7 +80,7 @@ export async function getOrCreateRoom(roomId: string): Promise<Room> {
 		}
 	}
 	const peer = await getPeer(),
-		r = peer.getRoom(roomId);
+		r = peer.getRoom(fullRoomId);
 
 	r.on(AutoReconnectingPeerEvent.Connection, forceRefresh);
 	r.on(AutoReconnectingPeerEvent.Disconnection, forceRefresh);
