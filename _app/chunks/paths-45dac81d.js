@@ -1,1 +1,1 @@
-let s="",a="/.";function e(e){({base:s,assets:a}=e)}export{s as b,e as s};
+let t="",e="/.";function a(s){({base:t,assets:e}=s)}export{t as b,a as s};
