@@ -27,7 +27,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y webkit2gtk-4.0
-      - run: npm i
+      - run: npm install -g npm@7.24.2
+      - run: npm ci
       - run: npm run desktop.build
       - id: tag
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
