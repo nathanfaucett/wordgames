@@ -21,13 +21,15 @@
 	import Layout from '$lib/Layout.svelte';
 	import { browser } from '$app/env';
 	import { base } from '$app/paths';
+	import Modal from '$lib/Modal.svelte';
+	import QrCode from '$lib/QRCode.svelte';
 
 	export let roomId: string;
 	let name: string;
 
 	$: userId = $user?.id;
 	$: usersSort = (a: IUser, b: IUser) => a.id.localeCompare(b.id);
-	$: userList = Object.values($users.byId).sort(usersSort);
+	$: userList = Object.values($users?.byId || {}).sort(usersSort);
 
 	async function onChange() {
 		const usersState = await getUsersState(),
@@ -75,109 +77,95 @@
 		}
 	};
 
-	let qrcode: HTMLDivElement;
-	let prevRoomId: string;
-
-	$: if (qrcode && prevRoomId !== roomId) {
-		prevRoomId = roomId;
-		new window.QRious({
-			element: qrcode,
-			size: 500,
-			value: location.href
-		});
-	}
+	let showQrCode = false;
+	let showExit = false;
 
 	onMount(() => {
 		getOrCreateRoom(roomId);
 	});
 </script>
 
+<h1 class="text-6xl text-center cursor-pointer" on:click={() => (showQrCode = true)}>
+	{roomId}
+</h1>
+
+<Modal bind:show={showQrCode}>
+	<QrCode value={location.href} />
+</Modal>
+
+<Modal bind:show={showExit}>
+	<a href={`${base}/`} class="btn lg danger">Exit</a>
+</Modal>
+
 <Layout>
-	<h1 class="text-5xl text-center mb-4">Room {roomId}</h1>
-	<div class="max-w-sm mx-auto">
+	<div class="mt-2">
+		<label for="name">Name</label>
 		<input
 			bind:this={nameInput}
-			class="bg-gray-200 focus:bg-white w-full py-2 px-4"
+			id="name"
+			class="input"
 			type="text"
 			placeholder="Enter Name"
 			bind:value={name}
 			on:change={onChange}
 		/>
 	</div>
-	<div class="max-w-sm mx-auto mt-2">
+	<div class="mt-2">
 		<label for="words">Words</label>
-		<select
-			id="words"
-			value={$game.words}
-			on:change|preventDefault={onSelectWords}
-			class="bg-gray-200 focus:bg-white w-full py-2 px-4"
-		>
+		<select id="words" value={$game.words} on:change|preventDefault={onSelectWords} class="input">
 			{#each Object.keys(Words) as word}
 				<option value={Words[word]}>{word}</option>
 			{/each}
 		</select>
 	</div>
-	<div class="mt-2 mb-4 max-w-md mx-auto">
-		<h1 class="text-3xl text-center mb-2">
-			Team 1: {countTeam(userList, 1)} - Team 2: {countTeam(userList, 2)}
-		</h1>
-		{#each userList as user}
-			<div class="grid grid-cols-2" class:bg-gray-200={userId === user.id}>
-				<div class="text-left">
-					<p class="text-2xl mb-2 font-bold">{user.name}</p>
+	<div class="mt-2 mb-2">
+		<div class="mt-2 mb-2 flex justify-center">
+			<div class="btn md primary flex-1 text-center">
+				{countTeam(userList, 1)}
+			</div>
+			<div class="btn md danger flex-1 text-center">
+				{countTeam(userList, 2)}
+			</div>
+		</div>
+		{#each userList as user, index}
+			<div class="flex justify-between" class:bg-gray-200={userId === user.id}>
+				<div class="flex-grow">
+					<p class="text-2xl p-1 font-bold">{index + 1} - {user.name}</p>
 				</div>
-				<form class="text-right">
-					<div
-						class="bg-blue-600 hover:bg-blue-500 text-white inline-block cursor-pointer py-2 px-4"
-						class:bg-blue-300={user.team === 2}
-						on:click={createOnSetTeam(user, 1)}
-					>
-						<label for={`${user.id}-1`} class="cursor-pointer">Team 1</label>
+				<form class="flex-grow-0">
+					<div class="btn sm primary inline-block" on:click={createOnSetTeam(user, 1)}>
 						<input
 							id={`${user.id}-1`}
 							name="team"
 							value="1"
 							type="radio"
-							class="ml-2 cursor-pointer"
 							on:click|preventDefault
 							checked={user.team === 1}
 						/>
 					</div>
-					<div
-						class="bg-blue-600 hover:bg-blue-500 text-white inline-block cursor-pointer py-2 px-4"
-						class:bg-blue-300={user.team === 1}
-						on:click={createOnSetTeam(user, 2)}
-					>
-						<label for={`${user.id}-2`} class="cursor-pointer">Team 2</label>
+					<div class="btn sm danger inline-block" on:click={createOnSetTeam(user, 2)}>
 						<input
 							id={`${user.id}-2`}
 							name="team"
 							value="2"
 							type="radio"
-							class="ml-2 cursor-pointer"
 							on:click|preventDefault
 							checked={user.team === 2}
 						/>
 					</div>
 				</form>
 			</div>
+			<hr />
 		{/each}
 	</div>
-	<div class="text-center">
+	<div class="mt-2 flex justify-center">
 		<button
-			class="bg-blue-600 text-white text-lg py-2 px-4"
+			class="btn lg primary flex-1"
 			class:bg-blue-100={userList.length < 2}
 			class:hover:bg-blue-500={userList.length > 1}
 			on:click={startGame}
 			disabled={userList.length < 2}>Start</button
 		>
-	</div>
-	<div class="text-center mt-4">
-		<img class="inline-block" bind:this={qrcode} alt="QRCode" />
-	</div>
-	<div class="flex mt-4 justify-center">
-		<a href={`${base}/`} class="bg-blue-600 hover:bg-blue-500 text-white text-lg mt-4 py-2 px-8"
-			>Exit</a
-		>
+		<button class="btn lg danger flex-1" on:click={() => (showExit = true)}>Leave</button>
 	</div>
 </Layout>

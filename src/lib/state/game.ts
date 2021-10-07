@@ -64,7 +64,7 @@ export async function startGame(): Promise<void> {
 
 	gameState.change((game) => {
 		game.started = true;
-		game.turn = rng.fromArray(Object.keys(users.byId)).unwrapOr(getPeerId());
+		game.turn = rng.fromArray(Object.keys(users?.byId || {})).unwrapOr(getPeerId());
 		game.word = word;
 		game.seed = rng.nextInt();
 	});

@@ -22,6 +22,16 @@ declare global {
 	}
 
 	class QRious {
+		background: string;
+		backgroundAlpha: number;
+		foreground: string;
+		foregroundAlpha: number;
+		level: 'L' | 'M' | 'Q' | 'H';
+		mime: string;
+		padding: number;
+		size: number;
+		value: string;
+
 		constructor(options: IQRiousOptions);
 	}
 

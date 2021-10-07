@@ -22,6 +22,8 @@
 	import Layout from '$lib/Layout.svelte';
 	import { browser } from '$app/env';
 	import Timer from '$lib/Timer.svelte';
+	import Modal from '$lib/Modal.svelte';
+	import QrCode from '$lib/QRCode.svelte';
 
 	export let roomId: string;
 
@@ -41,19 +43,36 @@
 		}
 	}
 
+	let showQrCode = false;
+	let showExit = false;
+
 	onMount(() => {
 		getOrCreateRoom(roomId);
 	});
 </script>
 
+<h1 class="text-6xl text-center cursor-pointer" on:click={() => (showQrCode = true)}>
+	{roomId}
+</h1>
+
+<Modal bind:show={showQrCode}>
+	<QrCode value={location.href} />
+</Modal>
+
+<Modal bind:show={showExit}>
+	<a href={`${base}/`} class="btn lg danger">Exit</a>
+</Modal>
+
 <Layout>
-	<h1 class="text-2xl text-center mb-2">
-		Room {$room?.getRoomId()}
-	</h1>
-	<h1 class="text-2xl text-center mb-2">
-		Team 1: {$game.team1}, Team 2: {$game?.team2}
-	</h1>
-	<h1 class="text-2xl text-center mb-2">{isYourTurn ? 'Your' : turnName + "'s"} Turn</h1>
+	<div class="mt-2 mb-2 flex justify-center">
+		<div class="btn md primary flex-1 text-center">
+			{$game.team1}
+		</div>
+		<div class="btn md danger flex-1 text-center">
+			{$game.team2}
+		</div>
+	</div>
+	<h1 class="text-center mb-2">{isYourTurn ? 'Your' : turnName + "'s"} Turn</h1>
 
 	<p class="text-2xl text-center">
 		<Timer seconds={$game.timer} />
@@ -62,31 +81,19 @@
 	{#if isYourTurn}
 		{#if $game.timer === 0}
 			<div class="flex mt-4 justify-center">
-				<button
-					on:click={start}
-					class="bg-blue-600 hover:bg-blue-500 text-white text-lg mt-4 py-2 px-8">Start</button
-				>
+				<button on:click={start} class="btn lg primary flex-1">Start</button>
 			</div>
 		{:else}
-			<p class="text-5xl text-center mb-2">{$game.word}</p>
+			<p class="text-6xl text-center mb-2">{$game.word}</p>
 
 			<div class="flex mt-4 justify-center">
-				<button
-					on:click={skipWord}
-					class="bg-red-600 hover:bg-red-500 text-white text-lg mt-4 py-2 px-8">Skip</button
-				>
-			</div>
-			<div class="flex mt-4 justify-center">
-				<button
-					on:click={next}
-					class="bg-blue-600 hover:bg-blue-500 text-white text-lg mt-4 py-2 px-8">Next</button
-				>
+				<button on:click={skipWord} class="btn lg danger flex-1">Skip</button>
+				<button on:click={next} class="btn lg primary flex-1">Next</button>
 			</div>
 		{/if}
 	{/if}
-	<div class="flex mt-4 justify-center">
-		<a href={`${base}/`} class="bg-blue-600 hover:bg-blue-500 text-white text-lg mt-4 py-2 px-8"
-			>Exit</a
-		>
+
+	<div class="flex justify-center mt-20">
+		<button class="btn lg danger flex-1" on:click={() => (showExit = true)}>Leave</button>
 	</div>
 </Layout>

@@ -1,4 +1,55 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-/* Write your global styles here, in PostCSS syntax */
+
+@layer base {
+	h1 {
+		@apply text-4xl;
+	}
+	h2 {
+		@apply text-2xl;
+	}
+	h3 {
+		@apply text-xl;
+	}
+	h4 {
+		@apply text-lg;
+	}
+	h5 {
+		@apply text-base;
+	}
+	h6 {
+		@apply text-sm;
+	}
+}
+
+@layer components {
+	.btn {
+		@apply bg-gray-500 text-white active:bg-gray-600 font-bold uppercase rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150;
+	}
+	.btn.sm {
+		@apply text-xs px-4 py-2;
+	}
+	.btn.md {
+		@apply text-sm px-6 py-3;
+	}
+	.btn.lg {
+		@apply text-base px-8 py-3;
+	}
+	.btn.primary {
+		@apply bg-blue-500 text-white active:bg-blue-600;
+	}
+	.btn.danger {
+		@apply bg-red-500 text-white active:bg-red-600;
+	}
+
+	.input {
+		@apply px-3 py-3 text-gray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none w-full;
+	}
+	.input.sm {
+		@apply px-2 py-1;
+	}
+	.input.lg {
+		@apply px-3 py-4;
+	}
+}

@@ -38,7 +38,10 @@ export const users: Readable<IUsers> = derived(state, (state) => {
 	}
 	return emptyUsers();
 });
-export const user: Readable<IUser | undefined> = derived(users, (users) => users.byId[getPeerId()]);
+export const user: Readable<IUser | undefined> = derived(
+	users,
+	(users) => users?.byId[getPeerId()]
+);
 
 export function getUsersState(): Promise<State<IUsers>> {
 	const s = get(state);
