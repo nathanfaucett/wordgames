@@ -1,5 +1,3 @@
-<div class="mx-auto max-w-screen-sm px-4">
-	<div class="row-auto">
-		<slot />
-	</div>
+<div class="mx-auto h-screen flex flex-col max-w-md px-4">
+	<slot />
 </div>

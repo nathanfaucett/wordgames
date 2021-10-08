@@ -51,9 +51,53 @@
 	});
 </script>
 
-<h1 class="text-6xl text-center cursor-pointer" on:click={() => (showQrCode = true)}>
-	{roomId}
-</h1>
+<Layout>
+	<h1 class="text-6xl text-center cursor-pointer" on:click={() => (showQrCode = true)}>
+		{roomId}
+	</h1>
+
+	<div class="flex justify-center">
+		<div class="btn md primary flex-1 text-center">
+			{$game.team1}
+		</div>
+		<div class="btn md danger flex-1 text-center">
+			{$game.team2}
+		</div>
+	</div>
+	<h1 class="text-center">{isYourTurn ? 'Your' : turnName + "'s"} Turn</h1>
+	<p class="text-2xl text-center">
+		<Timer seconds={$game.timer} />
+	</p>
+
+	<div class="flex-grow flex flex-col justify-center">
+		{#if isYourTurn}
+			{#if $game.timer === 0}
+				<div class="flex-1">
+					<div class="flex justify-center">
+						<button on:click={start} class="btn lg primary flex-1">Start</button>
+					</div>
+				</div>
+			{:else}
+				<div class="flex-1 flex h-full justify-center items-center">
+					<div class="text-center">
+						<p class="text-6xl">{$game.word}</p>
+					</div>
+				</div>
+
+				<div class="flex-1">
+					<div class="flex flex-1 justify-center">
+						<button on:click={skipWord} class="btn lg danger flex-1">Skip</button>
+						<button on:click={next} class="btn lg primary flex-1">Next</button>
+					</div>
+				</div>
+			{/if}
+		{/if}
+	</div>
+
+	<div class="flex justify-center">
+		<button class="btn lg danger flex-1" on:click={() => (showExit = true)}>Leave</button>
+	</div>
+</Layout>
 
 <Modal bind:show={showQrCode}>
 	<QrCode value={location.href} />
@@ -62,38 +106,3 @@
 <Modal bind:show={showExit}>
 	<a href={`${base}/`} class="btn lg danger">Exit</a>
 </Modal>
-
-<Layout>
-	<div class="mt-2 mb-2 flex justify-center">
-		<div class="btn md primary flex-1 text-center">
-			{$game.team1}
-		</div>
-		<div class="btn md danger flex-1 text-center">
-			{$game.team2}
-		</div>
-	</div>
-	<h1 class="text-center mb-2">{isYourTurn ? 'Your' : turnName + "'s"} Turn</h1>
-
-	<p class="text-2xl text-center">
-		<Timer seconds={$game.timer} />
-	</p>
-
-	{#if isYourTurn}
-		{#if $game.timer === 0}
-			<div class="flex mt-4 justify-center">
-				<button on:click={start} class="btn lg primary flex-1">Start</button>
-			</div>
-		{:else}
-			<p class="text-6xl text-center mb-2">{$game.word}</p>
-
-			<div class="flex mt-4 justify-center">
-				<button on:click={skipWord} class="btn lg danger flex-1">Skip</button>
-				<button on:click={next} class="btn lg primary flex-1">Next</button>
-			</div>
-		{/if}
-	{/if}
-
-	<div class="flex justify-center mt-20">
-		<button class="btn lg danger flex-1" on:click={() => (showExit = true)}>Leave</button>
-	</div>
-</Layout>
