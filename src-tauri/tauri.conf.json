@@ -1,6 +1,6 @@
 {
 	"package": {
-		"productName": "wordgames",
+		"productName": "WordGames",
 		"version": "0.1.0"
 	},
 	"build": {
