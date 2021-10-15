@@ -18,6 +18,9 @@
 			<div
 				class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t"
 			>
+				<div>
+					<slot name="title" />
+				</div>
 				<button
 					class="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
 					on:click={toggleModal}

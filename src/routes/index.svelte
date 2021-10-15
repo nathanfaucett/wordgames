@@ -1,13 +1,22 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import Layout from '$lib/Layout.svelte';
-	import { generateRoomId } from '$lib/state/p2p';
+	import { browser } from '$app/env';
+	import { username, loading } from '$lib/state/user';
+	import { goto } from '$app/navigation';
+	import { generateRoomId } from '$lib/util';
 
 	let roomId: string;
+
+	$: if (browser) {
+		if (!$username && !$loading) {
+			goto(`${base}/auth`);
+		}
+	}
 </script>
 
 <Layout>
-	<h1 class="text-6xl bold mt-2 mb-8 text-center">WordGames!</h1>
+	<a class="text-6xl bold mt-2 mb-8 text-center" href={`${base}/`}>WordGames!</a>
 
 	<div class="text-center">
 		<a class="btn lg primary block" href={`${base}/lobby?room=${generateRoomId()}`}>Host</a>

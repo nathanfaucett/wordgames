@@ -1,25 +1,37 @@
 import type { Rng } from '@aicacia/rand';
-import { Words } from './game';
 
-export const easy = import('$lib/state/words/easy.json'),
-	medium = import('$lib/state/words/medium.json'),
-	hard = import('$lib/state/words/hard.json');
-
-export async function getWords(words: Words): Promise<string[]> {
-	switch (words) {
-		case Words.Easy:
-			return easy.then(({ default: words }) => words);
-		case Words.Medium:
-			return medium.then(({ default: words }) => words);
-		case Words.Hard:
-			return hard.then(({ default: words }) => words);
-		default:
-			return Promise.all([easy, medium, hard]).then(
-				([{ default: easy }, { default: medium }, { default: hard }]) => easy.concat(medium, hard)
-			);
-	}
+export enum Words {
+	Easy = 'easy',
+	Medium = 'medium',
+	Hard = 'hard',
+	All = 'all'
 }
 
-export async function getWord(rng: Rng, words: Words): Promise<string> {
-	return rng.fromArray(await getWords(words)).unwrapOr('unknown');
+const imports = {
+	[Words.Easy]: import('$lib/state/words/easy.json'),
+	[Words.Medium]: import('$lib/state/words/medium.json'),
+	[Words.Hard]: import('$lib/state/words/hard.json')
+};
+const loading: Record<string, boolean> = {};
+
+export const words: Record<string, string[]> = {};
+
+export async function loadWords(word: Words = Words.Medium): Promise<string[]> {
+	if (!words[word] && !loading[word]) {
+		loading[word] = true;
+		try {
+			if (word === Words.All) {
+				words[word] = (await Promise.all(Object.keys(imports).map(loadWords))).flat();
+			} else {
+				words[word] = await imports[word].then((module) => module.default);
+			}
+		} finally {
+			loading[word] = false;
+		}
+	}
+	return words[word];
+}
+
+export async function getWord(rng: Rng, word: Words): Promise<string> {
+	return rng.fromArray(await loadWords(word)).unwrapOr('unknown');
 }
