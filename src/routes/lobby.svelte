@@ -24,8 +24,8 @@
 	import { db } from '$lib/state/db';
 	import type { IRoom } from '$lib/state/db';
 	import { getWord, Words } from '$lib/state/words';
-	import { get } from 'svelte/store';
 	import { XorShiftRng } from '@aicacia/rand';
+	import { entries, keys } from '$lib/util';
 
 	export let roomId: string;
 
@@ -65,52 +65,53 @@
 	async function onStartGame() {
 		const dbRoom = db.get('rooms').get(roomId),
 			dbUsers = dbRoom.get('users'),
-			users = (await dbUsers) as unknown as [username: string, team: string][],
+			users = (await dbUsers) as unknown as Record<string, string>,
 			room = (await dbRoom) as unknown as IRoom,
 			rng = XorShiftRng.fromSeed(room.seed);
 
-		dbRoom
-			.get('turn')
-			.put(rng.fromArray(Object.keys(users).filter(([user]) => user !== '_')).unwrap());
+		dbRoom.get('turn').put(rng.fromArray(keys(users)).unwrap());
 		dbRoom.get('word').put(await getWord(rng, room.words));
 		dbRoom.get('started').put(true);
 	}
 
+	let prevUsername: string;
+	$: if ($username && prevUsername !== $username) {
+		const user = $username;
+		db.get('rooms').get(roomId).get('users').get(user).put('team1');
+		if (prevUsername) {
+			db.get('rooms').get(roomId).get('users').get(prevUsername).put(null);
+		}
+		prevUsername = user;
+	}
+
 	onMount(() => {
-		const user = get(username),
-			room = db.get('rooms').get(roomId, (ack) => {
-				if (!ack.put) {
-					const seed = Date.now();
-					db.get('rooms').get(roomId).put({
-						seed,
-						team1: 0,
-						team2: 0,
-						started: false,
-						words: Words.Medium
-					});
-				}
-			}),
-			dbUser = room.get('users').get(user, (ack) => {
-				if (!ack.put) {
-					room.get('users').get(user).put('team1');
-				}
-			}),
-			dbUsers = room.get('users').on((state) => {
-				users = Object.entries(state)
-					.filter(([user]) => user !== '_')
-					.sort();
+		const dbRoom = db.get('rooms').get(roomId),
+			dbUsers = dbRoom.get('users').on((state) => {
+				users = entries(state).sort();
 				team1 = users.filter(([, team]) => team === 'team1').length;
 				team2 = users.length - team1;
 			}),
-			dbWords = room.get('words').on((state) => {
+			dbWords = dbRoom.get('words').on((state) => {
 				words = state;
 			}),
-			dbStated = room.get('started').on((state) => {
+			dbStated = dbRoom.get('started').on((state) => {
 				started = state;
 			});
 
+		dbRoom.once((state) => {
+			if (!state.seed) {
+				const seed = Date.now();
+				dbRoom.put({
+					seed,
+					team1: 0,
+					team2: 0,
+					started: false,
+					words: Words.Medium
+				});
+			}
+		});
+
 		return () => {
-			dbUser.off();
 			dbUsers.off();
 			dbWords.off();
 			dbStated.off();

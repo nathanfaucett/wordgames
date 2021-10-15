@@ -11,3 +11,23 @@ export function generateRoomId(length = 6): string {
 		)
 		.join('');
 }
+
+export function keys<T extends Record<string, unknown>>(o: T): Array<keyof T> {
+	return Object.keys(o).filter(isValidKey);
+}
+export function values<T extends Record<string, unknown>>(o: T): Array<T[keyof T]> {
+	return entries(o).map(([_, value]) => value);
+}
+export function entries<T extends Record<string, unknown>>(
+	o: T
+): Array<[key: string, value: T[keyof T]]> {
+	return Object.entries(o as any).filter(isValidEntry) as any;
+}
+
+function isValidKey<K extends string>(key: K): boolean {
+	return key !== '#' && key !== '_';
+}
+
+function isValidEntry<K extends string, V>([key]: [K, V]): boolean {
+	return isValidKey(key);
+}

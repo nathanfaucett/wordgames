@@ -28,6 +28,7 @@
 	import { get } from 'svelte/store';
 	import { XorShiftRng } from '@aicacia/rand';
 	import { getWord } from '$lib/state/words';
+	import { keys } from '$lib/util';
 
 	export let roomId: string;
 
@@ -77,9 +78,7 @@
 	async function onNext() {
 		const dbRoom = db.get('rooms').get(roomId),
 			dbUsers = dbRoom.get('users'),
-			users = Object.keys((await dbUsers) as unknown as Record<string, string>)
-				.filter((user) => user !== '_')
-				.sort();
+			users = keys((await dbUsers) as unknown as Record<string, string>).sort();
 
 		dbRoom.get('turn').put(users[(users.indexOf(turn) + 1) % users.length]);
 		await onSkipWord();

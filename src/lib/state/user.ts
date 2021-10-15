@@ -8,11 +8,7 @@ const { set: setLoading, subscribe: subscribeLoading } = writable(true);
 export const username: Readable<string> = { subscribe };
 export const loading: Readable<boolean> = { subscribe: subscribeLoading };
 
-user
-	.get('alias', () => {
-		setLoading(false);
-	})
-	.on(set);
+user.get('alias').on(set);
 
 db.on('auth', async () => {
 	const alias = (await user.get('alias')) as unknown as string;
@@ -47,3 +43,5 @@ export function signUp(username: string, password: string): Promise<void> {
 		})
 	);
 }
+
+setTimeout(() => setLoading(false), 3000);

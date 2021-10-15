@@ -1,6 +1,6 @@
 import Gun from 'gun';
-import 'gun/sea';
-import 'gun/axe';
+import 'gun/sea.js';
+import 'gun/axe.js';
 import type { IGunChainReference } from 'gun/types/chain';
 import type { Words } from './words';
 
