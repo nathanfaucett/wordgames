@@ -1,6 +1,8 @@
 <script context="module" lang="ts">
 	import type { LoadInput } from '@sveltejs/kit';
 
+	export const ssr = false;
+
 	export function load(input: LoadInput) {
 		const roomId = input.page.query.get('room');
 

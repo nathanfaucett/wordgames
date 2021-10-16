@@ -23,6 +23,8 @@
 	</div>
 	<div class="flex mt-8">
 		<input class="input flex-grow" type="text" bind:value={roomId} placeholder="Room Id" />
-		<a class="btn lg primary flex-grow-0" href={`${base}/lobby?room=${roomId}`}>Join</a>
+		{#if roomId}
+			<a class="btn lg primary flex-grow-0" href={`${base}/lobby?room=${roomId}`}>Join</a>
+		{/if}
 	</div>
 </Layout>

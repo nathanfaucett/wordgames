@@ -1,7 +1,7 @@
 <script context="module" lang="ts">
 	import type { LoadInput } from '@sveltejs/kit';
 
-	const DEFAULT_TIME = 60;
+	export const ssr = false;
 
 	export function load(input: LoadInput) {
 		const roomId = input.page.query.get('room');
@@ -12,6 +12,8 @@
 			}
 		};
 	}
+
+	const DEFAULT_TIME = 60;
 </script>
 
 <script lang="ts">

@@ -28,6 +28,7 @@
 		<p class="text-center mt-8">
 			You are already signed in as <strong>{$username}</strong>
 		</p>
+		<a class="btn md primary" href={`${base}/`} role="button">Start a Game!</a>
 		<button class="btn md danger" on:click={signOut}>Sign out</button>
 	{:else}
 		<div class="flex flex-col">

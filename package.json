@@ -5,7 +5,7 @@
 	"scripts": {
 		"tauri": "tauri",
 		"svelte-kit": "svelte-kit",
-		"clean": "rm -rf node_modules/.vite .svelte-kit build",
+		"clean": "rm -rf node_modules/.vite .svelte-kit build radata",
 		"web": "svelte-kit dev --host --open",
 		"web.build": "svelte-kit build",
 		"web.preview": "svelte-kit preview",
