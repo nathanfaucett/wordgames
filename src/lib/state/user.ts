@@ -44,4 +44,4 @@ export function signUp(username: string, password: string): Promise<void> {
 	);
 }
 
-setTimeout(() => setLoading(false), 3000);
+setTimeout(() => setLoading(false), 1000);
