@@ -8,7 +8,7 @@
 
 		
 
-		<link rel="modulepreload" href="/wordgames/_app/start-deb119c2.js">
+		<link rel="modulepreload" href="/wordgames/_app/start-a08b8e48.js">
 		<link rel="modulepreload" href="/wordgames/_app/chunks/vendor-edab756b.js">
 		<link rel="modulepreload" href="/wordgames/_app/chunks/preload-helper-ac1c8acd.js">
 		<link rel="modulepreload" href="/wordgames/_app/chunks/singletons-12a22614.js">
@@ -16,7 +16,7 @@
 		<link rel="stylesheet" href="/wordgames/_app/assets/start-464e9d0a.css">
 
 		<script type="module">
-			import { start } from "/wordgames/_app/start-deb119c2.js";
+			import { start } from "/wordgames/_app/start-a08b8e48.js";
 			start({
 				target: document.querySelector("#app"),
 				paths: {"base":"/wordgames","assets":""},
@@ -27,6 +27,10 @@
 				trailing_slash: "never",
 				hydrate: null
 			});
+		</script><script>
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('/service-worker.js');
+			}
 		</script>
 	</head>
 	<body>

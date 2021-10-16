@@ -4,33 +4,73 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<script src="https://unpkg.com/qrious@4.0/dist/qrious.min.js"></script>
-		
+		<link rel="icon" href="/wordgames/favicon.png" data-svelte="svelte-jebwb2"><link rel="manifest" href="/wordgames/manifest.json" data-svelte="svelte-jebwb2">
 
 		
 
-		<link rel="modulepreload" href="/wordgames/_app/start-deb119c2.js">
+		<link rel="modulepreload" href="/wordgames/_app/start-a08b8e48.js">
 		<link rel="modulepreload" href="/wordgames/_app/chunks/vendor-edab756b.js">
 		<link rel="modulepreload" href="/wordgames/_app/chunks/preload-helper-ac1c8acd.js">
 		<link rel="modulepreload" href="/wordgames/_app/chunks/singletons-12a22614.js">
 		<link rel="modulepreload" href="/wordgames/_app/chunks/paths-28a87002.js">
+		<link rel="modulepreload" href="/wordgames/_app/pages/__layout.svelte-8d0b3537.js">
+		<link rel="modulepreload" href="/wordgames/_app/pages/auth.svelte-87fe6a9f.js">
+		<link rel="modulepreload" href="/wordgames/_app/chunks/user-87081f1d.js">
 		<link rel="stylesheet" href="/wordgames/_app/assets/start-464e9d0a.css">
+		<link rel="stylesheet" href="/wordgames/_app/assets/pages/__layout.svelte-bb762058.css">
 
 		<script type="module">
-			import { start } from "/wordgames/_app/start-deb119c2.js";
+			import { start } from "/wordgames/_app/start-a08b8e48.js";
 			start({
 				target: document.querySelector("#app"),
 				paths: {"base":"/wordgames","assets":""},
 				session: {},
 				host: location.host,
 				route: true,
-				spa: true,
+				spa: false,
 				trailing_slash: "never",
-				hydrate: null
+				hydrate: {
+					status: 200,
+					error: null,
+					nodes: [
+						import("/wordgames/_app/pages/__layout.svelte-8d0b3537.js"),
+						import("/wordgames/_app/pages/auth.svelte-87fe6a9f.js")
+					],
+					page: {
+						host: location.host, // TODO this is redundant
+						path: "\u002Fauth",
+						query: new URLSearchParams(""),
+						params: {}
+					}
+				}
 			});
+		</script><script>
+			if ('serviceWorker' in navigator) {
+				navigator.serviceWorker.register('/service-worker.js');
+			}
 		</script>
 	</head>
 	<body>
 		<div id="app">
+
+
+
+
+<div class="mx-auto h-screen flex flex-col max-w-md px-4"><a class="text-6xl bold mt-2 mb-8 text-center" href="/wordgames/">WordGames!</a>
+	<h1 class="text-center">Sign in/up</h1>
+
+	<div class="flex flex-col"><div class="flex-1"><label for="username">Username</label>
+				<input class="input" name="username" minlength="3" maxlength="16"></div>
+
+			<div class="flex-1"><label for="password">Password</label>
+				<input class="input" name="password" type="password"></div>
+
+			<div class="flex flex-row"><button class="flex-1 btn md primary">Sign in</button>
+				<button class="flex-1 btn md secondary">Sign up</button></div></div></div>
+
+<div class="p-2 absolute bottom-0 w-full"></div>
+
+
 
 			
 		</div>
