@@ -3,12 +3,12 @@
 	"short_name": "Word Games",
 	"icons": [
 		{
-			"src": "/icon.png",
+			"src": "/wordgames/icon.png",
 			"sizes": "512x512",
 			"type": "image/png"
 		}
 	],
-	"start_url": "/",
+	"start_url": "/wordgames",
 	"display": "standalone",
 	"background_color": "#ffffff",
 	"theme_color": "#2563eb"
