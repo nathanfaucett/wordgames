@@ -1,4 +1,4 @@
-const timestamp = 1634486934427;
+const timestamp = 1634487260905;
 const build = [
   "/wordgames/_app/start-adb38fd2.js",
   "/wordgames/_app/assets/start-464e9d0a.css",
