@@ -127,9 +127,9 @@
 		Promise.all([dbRoom as unknown as Promise<IRoom>, dbUser as unknown as Promise<IUser>]).then(
 			([room, user]) => {
 				if (user.team === 'team1') {
-					dbRoom.get('team1').put(room.team1 + 1);
+					dbRoom.get('team2').put(room.team1 + 1);
 				} else {
-					dbRoom.get('team2').put(room.team2 + 1);
+					dbRoom.get('team1').put(room.team2 + 1);
 				}
 			}
 		);
