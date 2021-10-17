@@ -1,11 +1,11 @@
-const timestamp = 1634487260905;
+const timestamp = 1634487509253;
 const build = [
-  "/wordgames/_app/start-adb38fd2.js",
+  "/wordgames/_app/start-2482a47e.js",
   "/wordgames/_app/assets/start-464e9d0a.css",
   "/wordgames/_app/pages/__layout.svelte-fc2daf0e.js",
   "/wordgames/_app/assets/pages/__layout.svelte-c1ae72a3.css",
   "/wordgames/_app/error.svelte-032cb28e.js",
-  "/wordgames/_app/pages/index.svelte-147d70a9.js",
+  "/wordgames/_app/pages/index.svelte-689f7a8b.js",
   "/wordgames/_app/pages/lobby.svelte-a35d5385.js",
   "/wordgames/_app/pages/game.svelte-260d3651.js",
   "/wordgames/_app/chunks/vendor-497916f4.js",
