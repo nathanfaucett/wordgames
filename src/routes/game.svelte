@@ -43,7 +43,7 @@
 
 	export let roomId: string;
 
-	let usernames: { [userId: string]: string } = {};
+	let users: { [userId: string]: IUser } = {};
 	let team1: number;
 	let team2: number;
 	let turn: string;
@@ -83,7 +83,7 @@
 	async function onNext() {
 		const dbRoom = db.get('rooms').get(roomId),
 			dbUsers = dbRoom.get('users'),
-			users = keys((await dbUsers) as unknown as Record<string, string>).sort();
+			users = keys((await dbUsers) as unknown as Record<string, IUser>).sort();
 
 		dbRoom.get('turn').put(users[(users.indexOf(turn) + 1) % users.length]);
 		ticking.stop();
@@ -148,7 +148,7 @@
 		const dbRoom = db.get('rooms').get(roomId);
 
 		const dbUsers = dbRoom.get('users').on(async (state) => {
-				usernames = (
+				users = (
 					await Promise.all(
 						keys(state).map(
 							(userId) =>
@@ -165,7 +165,7 @@
 				).reduce(
 					(acc, [userId, user]) => ({
 						...acc,
-						[userId]: user.name
+						[userId]: user
 					}),
 					{}
 				);
@@ -213,7 +213,7 @@
 		{roomId}
 	</h1>
 
-	<div class="flex justify-center">
+	<div class="flex justify-center mt-2">
 		<div class="btn md primary flex-1 text-center">
 			{team1}
 		</div>
@@ -221,7 +221,19 @@
 			{team2}
 		</div>
 	</div>
-	<h1 class="text-center">{isYourTurn ? 'Your' : usernames[turn] + "'s"} Turn</h1>
+	<h1
+		class="text-center text-white rounded py-4 my-4"
+		class:bg-blue-500={users[$userId]?.team === 'team1'}
+		class:bg-red-500={users[$userId]?.team === 'team2'}
+	>
+		{#if isYourTurn}
+			Your Turn
+		{:else if users[$userId]?.team === users[turn]?.team}
+			{users[turn]?.name} and your Team's turn
+		{:else}
+			{users[turn]?.name}'s turn
+		{/if}
+	</h1>
 	<p class="text-2xl text-center">
 		<Timer seconds={timer} />
 	</p>
