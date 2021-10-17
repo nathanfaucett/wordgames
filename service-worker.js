@@ -1,21 +1,18 @@
-const timestamp = 1634402112463;
+const timestamp = 1634482624931;
 const build = [
-  "/wordgames/_app/start-a08b8e48.js",
+  "/wordgames/_app/start-a6f961d9.js",
   "/wordgames/_app/assets/start-464e9d0a.css",
-  "/wordgames/_app/pages/__layout.svelte-8d0b3537.js",
+  "/wordgames/_app/pages/__layout.svelte-321c28a4.js",
   "/wordgames/_app/assets/pages/__layout.svelte-bb762058.css",
-  "/wordgames/_app/error.svelte-be9fd83d.js",
-  "/wordgames/_app/pages/index.svelte-bb6795e4.js",
-  "/wordgames/_app/pages/lobby.svelte-ebaa0161.js",
-  "/wordgames/_app/pages/auth.svelte-87fe6a9f.js",
-  "/wordgames/_app/pages/game.svelte-0882460b.js",
-  "/wordgames/_app/chunks/vendor-edab756b.js",
-  "/wordgames/_app/chunks/singletons-12a22614.js",
+  "/wordgames/_app/error.svelte-45dc7034.js",
+  "/wordgames/_app/pages/index.svelte-0eb0717b.js",
+  "/wordgames/_app/pages/lobby.svelte-071484e6.js",
+  "/wordgames/_app/pages/game.svelte-52808780.js",
+  "/wordgames/_app/chunks/vendor-230de008.js",
+  "/wordgames/_app/chunks/singletons-e82519e2.js",
   "/wordgames/_app/chunks/paths-28a87002.js",
-  "/wordgames/_app/chunks/preload-helper-ac1c8acd.js",
-  "/wordgames/_app/chunks/user-87081f1d.js",
-  "/wordgames/_app/chunks/util-ba9c2cff.js",
-  "/wordgames/_app/chunks/words-ca403351.js",
+  "/wordgames/_app/chunks/util-ab4fc287.js",
+  "/wordgames/_app/chunks/userId-ebb4d183.js",
   "/wordgames/_app/chunks/easy-d1c5d374.js",
   "/wordgames/_app/chunks/medium-73eb433f.js",
   "/wordgames/_app/chunks/hard-1ca555bc.js"
@@ -24,7 +21,11 @@ const files = [
   "/wordgames/favicon.png",
   "/wordgames/icon.png",
   "/wordgames/manifest.json",
-  "/wordgames/robots.txt"
+  "/wordgames/robots.txt",
+  "/wordgames/sounds/alarm-clock.mp3",
+  "/wordgames/sounds/alarm-clock.wav",
+  "/wordgames/sounds/ticking.mp3",
+  "/wordgames/sounds/ticking.wav"
 ];
 const CACHE_NAME = `static-cache-v${timestamp}`;
 const FILES_TO_CACHE = [...build, ...files];
