@@ -14,9 +14,7 @@
 <Layout>
 	<a class="text-6xl bold mt-2 mb-8 text-center" href={`${base}/`}>WordGames!</a>
 
-	<div class="text-center">
-		<button class="btn lg primary block" on:click={onHost}>Host</button>
-	</div>
+	<button class="btn lg primary block" on:click={onHost}>Host</button>
 	<div class="flex mt-8">
 		<input class="input flex-grow" type="text" bind:value={roomId} placeholder="Room Id" />
 		{#if roomId}
