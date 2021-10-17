@@ -22,32 +22,33 @@
 	import { base } from '$app/paths';
 	import Modal from '$lib/Modal.svelte';
 	import QrCode from '$lib/QRCode.svelte';
-	import { username, loading } from '$lib/state/user';
 	import { db } from '$lib/state/db';
-	import type { IRoom } from '$lib/state/db';
-	import { getWord, Words } from '$lib/state/words';
+	import type { IRoom, IUser } from '$lib/state/db';
+	import { Words } from '$lib/state/words';
 	import { XorShiftRng } from '@aicacia/rand';
-	import { entries, keys } from '$lib/util';
+	import { generateRoomId, keys } from '$lib/util';
+	import { getUserId, userId } from '$lib/state/userId';
 
 	export let roomId: string;
 
-	$: if (browser) {
-		if (!$username && !$loading) {
-			goto(`${base}/auth`);
-		}
-	}
 	$: if (browser && started) {
 		goto(`${base}/game?room=${roomId}`);
 	}
 
-	let users: [username: string, team: string][] = [];
+	let users: [userId: string, user: IUser][] = [];
+	$: team1 = users.filter(([, user]) => user.team === 'team1').length;
+	$: team2 = users.length - team1;
 	let started = false;
-	let team1: number = 0;
-	let team2: number = 0;
 	let words: string;
 
 	let showQrCode = false;
 	let showExit = false;
+
+	let username = `guest-${generateRoomId()}`;
+	async function onChangeName() {
+		const userId = await getUserId();
+		db.get('rooms').get(roomId).get('users').get(userId).get('name').put(username);
+	}
 
 	function onSelectWords(e: Event & { currentTarget: EventTarget & HTMLSelectElement }) {
 		db.get('rooms')
@@ -56,10 +57,10 @@
 			.put(e.currentTarget.value as Words);
 	}
 
-	function createOnSetTeam(user: string, team: string, newTeam: string) {
+	function createOnSetTeam(userId: string, team: string, newTeam: string) {
 		return function onSetTeam() {
 			if (team !== newTeam) {
-				db.get('rooms').get(roomId).get('users').get(user).put(newTeam);
+				db.get('rooms').get(roomId).get('users').get(userId).get('team').put(newTeam);
 			}
 		};
 	}
@@ -72,26 +73,37 @@
 			rng = XorShiftRng.fromSeed(room.seed);
 
 		dbRoom.get('turn').put(rng.fromArray(keys(users)).unwrap());
-		dbRoom.get('word').put(await getWord(rng, room.words));
 		dbRoom.get('started').put(true);
 	}
 
-	let prevUsername: string;
-	$: if ($username && prevUsername !== $username) {
-		const user = $username;
-		db.get('rooms').get(roomId).get('users').get(user).put('team1');
-		if (prevUsername) {
-			db.get('rooms').get(roomId).get('users').get(prevUsername).put(null);
+	let prevUserId: string;
+	$: if ($userId && prevUserId !== $userId) {
+		const id = $userId;
+		db.get('rooms').get(roomId).get('users').get(id).get('team').put('team1');
+		if (prevUserId) {
+			db.get('rooms').get(roomId).get('users').get(prevUserId).put(null);
 		}
-		prevUsername = user;
+		prevUserId = id;
 	}
 
 	onMount(() => {
 		const dbRoom = db.get('rooms').get(roomId),
-			dbUsers = dbRoom.get('users').on((state) => {
-				users = entries(state).sort();
-				team1 = users.filter(([, team]) => team === 'team1').length;
-				team2 = users.length - team1;
+			dbUsers = dbRoom.get('users').on(async (state) => {
+				users = (
+					await Promise.all(
+						keys(state).map(
+							(userId) =>
+								new Promise<[userId: string, user: IUser]>((resolve) =>
+									dbRoom
+										.get('users')
+										.get(userId)
+										.once((user) =>
+											resolve([userId, user] as unknown as [userId: string, user: IUser])
+										)
+								)
+						)
+					)
+				).sort();
 			}),
 			dbWords = dbRoom.get('words').on((state) => {
 				words = state;
@@ -100,8 +112,20 @@
 				started = state;
 			});
 
+		getUserId().then((userId) =>
+			dbRoom
+				.get('users')
+				.get(userId)
+				.get('name')
+				.once((state) => {
+					const name = state as unknown as string;
+					if (name) {
+						username = name;
+					}
+				})
+		);
 		dbRoom.once((state) => {
-			if (!state.seed) {
+			if (!state?.seed) {
 				const seed = Date.now();
 				dbRoom.put({
 					seed,
@@ -112,6 +136,8 @@
 				});
 			}
 		});
+
+		onChangeName();
 
 		return () => {
 			dbUsers.off();
@@ -126,6 +152,10 @@
 		{roomId}
 	</h1>
 	<div class="mt-2">
+		<label for="name">Name</label>
+		<input class="input" bind:value={username} on:input={onChangeName} />
+	</div>
+	<div>
 		<label for="words">Words</label>
 		<select id="words" value={words} on:change|preventDefault={onSelectWords} class="input">
 			{#each Object.keys(Words) as word}
@@ -142,32 +172,32 @@
 				{team2}
 			</div>
 		</div>
-		{#each users as [user, team], index (user)}
-			<div class="flex justify-between" class:bg-gray-200={user === $username}>
+		{#each users as [id, user], index (id)}
+			<div class="flex justify-between" class:bg-gray-200={id === $userId}>
 				<div class="flex-grow">
-					<p class="text-2xl p-1 font-bold">{index + 1} - {user}</p>
+					<p class="text-2xl p-1 font-bold">{index + 1} - {user.name}</p>
 				</div>
 				<form class="flex-grow-0 flex flex-row">
-					<div class="btn sm primary flex-1" on:click={createOnSetTeam(user, team, 'team1')}>
+					<div class="btn sm primary flex-1" on:click={createOnSetTeam(id, user.team, 'team1')}>
 						<input
-							id={`${user}-1`}
+							id={`${id}-team-1`}
 							name="team"
 							value="1"
 							type="radio"
 							class="align-bottom"
 							on:click|preventDefault
-							checked={team === 'team1'}
+							checked={user.team === 'team1'}
 						/>
 					</div>
-					<div class="btn sm danger flex-1" on:click={createOnSetTeam(user, team, 'team2')}>
+					<div class="btn sm danger flex-1" on:click={createOnSetTeam(id, user.team, 'team2')}>
 						<input
-							id={`${user}-2`}
+							id={`${id}-team-2`}
 							name="team"
 							value="2"
 							type="radio"
 							class="align-bottom"
 							on:click|preventDefault
-							checked={team === 'team2'}
+							checked={user.team === 'team2'}
 						/>
 					</div>
 				</form>
@@ -189,7 +219,7 @@
 </Layout>
 
 <Modal bind:show={showQrCode}>
-	<h3 slot="title">{roomId}</h3>
+	<h2 slot="title">{roomId}</h2>
 	<QrCode value={location.href} />
 </Modal>
 

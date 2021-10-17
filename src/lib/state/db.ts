@@ -1,12 +1,16 @@
 import Gun from 'gun';
 import 'gun/sea.js';
 import 'gun/axe.js';
-import type { IGunChainReference } from 'gun/types/chain';
 import type { Words } from './words';
+
+export interface IUser {
+	name: string;
+	team: string;
+}
 
 export interface IRoom {
 	users: {
-		[username: string]: string;
+		[id: string]: IUser;
 	};
 	seed: number;
 	playing: boolean;
@@ -20,18 +24,9 @@ export interface IRoom {
 }
 
 export interface IAppState {
-	user: {
-		alias: string;
-	};
 	rooms: {
 		[roomId: string]: IRoom;
 	};
 }
 
 export const db = new Gun<IAppState>({ localStorage: false });
-
-export const user = db.user().recall({ sessionStorage: true }) as IGunChainReference<
-	IAppState['user'],
-	'user',
-	false
->;

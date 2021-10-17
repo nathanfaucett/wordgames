@@ -14,10 +14,19 @@
 	}
 
 	const DEFAULT_TIME = 60;
+
+	const alarm = new Howl({
+		src: [`${base}/sounds/alarm-clock.mp3`, `${base}/sounds/alarm-clock.wav`]
+	});
+	const ticking = new Howl({
+		src: [`${base}/sounds/ticking.mp3`, `${base}/sounds/ticking.wav`],
+		loop: true
+	});
 </script>
 
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { Howl } from 'howler';
 	import { base } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import Layout from '$lib/Layout.svelte';
@@ -25,27 +34,22 @@
 	import Timer from '$lib/Timer.svelte';
 	import Modal from '$lib/Modal.svelte';
 	import QrCode from '$lib/QRCode.svelte';
-	import { loading, username } from '$lib/state/user';
+	import type { IUser } from '$lib/state/db';
 	import { db, IRoom } from '$lib/state/db';
-	import { get } from 'svelte/store';
 	import { XorShiftRng } from '@aicacia/rand';
 	import { getWord } from '$lib/state/words';
 	import { keys } from '$lib/util';
+	import { userId } from '$lib/state/userId';
 
 	export let roomId: string;
 
-	$: if (browser) {
-		if (!$username && !$loading) {
-			goto(`${base}/auth`);
-		}
-	}
-
+	let usernames: { [userId: string]: string } = {};
 	let team1: number;
 	let team2: number;
 	let turn: string;
 	let playing = false;
 	let started = true;
-	let isYourTurn = false;
+	$: isYourTurn = turn === $userId;
 	let timer;
 	let word: string;
 
@@ -63,9 +67,8 @@
 	let showQrCode = false;
 	let showExit = false;
 
-	function onStart() {
-		startTimer(DEFAULT_TIME);
-		onSkipWord();
+	async function onStart() {
+		await onSkipWord();
 		db.get('rooms').get(roomId).get('playing').put(true);
 	}
 	async function onSkipWord() {
@@ -83,6 +86,7 @@
 			users = keys((await dbUsers) as unknown as Record<string, string>).sort();
 
 		dbRoom.get('turn').put(users[(users.indexOf(turn) + 1) % users.length]);
+		ticking.stop();
 		await onSkipWord();
 	}
 
@@ -93,17 +97,23 @@
 		}
 		const dbTimer = db.get('rooms').get(roomId).get('timer');
 
-		dbTimer.put(startTime);
-
 		timerInterval = setInterval(async () => {
-			const currentTimer = (await dbTimer) as unknown as number;
+			const currentTime = (await dbTimer) as unknown as number;
 
-			if (currentTimer === 0) {
+			if (currentTime === 0) {
 				stopTimer();
 			} else {
-				dbTimer.put(currentTimer - 1);
+				const nextTime = currentTime - 1;
+				ticking.rate(1 + (1 - nextTime / DEFAULT_TIME));
+				dbTimer.put(nextTime);
 			}
 		}, 1000);
+
+		ticking.rate(1 + (1 - startTime / DEFAULT_TIME));
+		if (!ticking.playing()) {
+			ticking.play();
+		}
+		dbTimer.put(startTime);
 	}
 
 	function stopTimer() {
@@ -111,53 +121,79 @@
 			return;
 		}
 		const dbRoom = db.get('rooms').get(roomId),
-			dbUsers = dbRoom.get('users'),
+			dbUser = dbRoom.get('users').get(turn),
 			dbTimer = dbRoom.get('timer');
 
-		Promise.all([
-			dbRoom as unknown as Promise<IRoom>,
-			dbUsers as unknown as Promise<Record<string, string>>
-		]).then(([room, users]) => {
-			if (users[turn] === 'team1') {
-				dbRoom.get('team1').put(room.team1 + 1);
-			} else {
-				dbRoom.get('team2').put(room.team2 + 1);
+		Promise.all([dbRoom as unknown as Promise<IRoom>, dbUser as unknown as Promise<IUser>]).then(
+			([room, user]) => {
+				if (user.team === 'team1') {
+					dbRoom.get('team1').put(room.team1 + 1);
+				} else {
+					dbRoom.get('team2').put(room.team2 + 1);
+				}
 			}
-		});
+		);
 
-		dbRoom.get('playing').put(false);
-		clearInterval(timerInterval);
-		timerInterval = undefined;
 		dbTimer.put(0);
+		(dbRoom.get('playing').put(false) as unknown as Promise<void>).then(() => {
+			timerInterval = undefined;
+		});
+		clearInterval(timerInterval);
+
+		ticking.stop();
+		alarm.play();
 	}
 
 	onMount(() => {
-		const room = db.get('rooms').get(roomId);
+		const dbRoom = db.get('rooms').get(roomId);
 
-		const dbTimer = room.get('timer').on((state) => {
+		const dbUsers = dbRoom.get('users').on(async (state) => {
+				usernames = (
+					await Promise.all(
+						keys(state).map(
+							(userId) =>
+								new Promise<[userId: string, user: IUser]>((resolve) =>
+									dbRoom
+										.get('users')
+										.get(userId)
+										.once((user) =>
+											resolve([userId, user] as unknown as [userId: string, user: IUser])
+										)
+								)
+						)
+					)
+				).reduce(
+					(acc, [userId, user]) => ({
+						...acc,
+						[userId]: user.name
+					}),
+					{}
+				);
+			}),
+			dbTimer = dbRoom.get('timer').on((state) => {
 				timer = state;
 			}),
-			dbStarted = room.get('started').on((state) => {
+			dbStarted = dbRoom.get('started').on((state) => {
 				started = state;
 			}),
-			dbTeam1 = room.get('team1').on((state) => {
+			dbTeam1 = dbRoom.get('team1').on((state) => {
 				team1 = state;
 			}),
-			dbTeam2 = room.get('team2').on((state) => {
+			dbTeam2 = dbRoom.get('team2').on((state) => {
 				team2 = state;
 			}),
-			dbWord = room.get('word').on((state) => {
+			dbWord = dbRoom.get('word').on((state) => {
 				word = state;
 			}),
-			dbTurn = room.get('turn').on((state) => {
+			dbTurn = dbRoom.get('turn').on((state) => {
 				turn = state;
-				isYourTurn = turn === get(username);
 			}),
-			dbPlaying = room.get('playing').on((state) => {
+			dbPlaying = dbRoom.get('playing').on((state) => {
 				playing = state;
 			});
 
 		return () => {
+			dbUsers.off();
 			dbTimer.off();
 			dbStarted.off();
 			dbTeam1.off();
@@ -165,6 +201,9 @@
 			dbWord.off();
 			dbTurn.off();
 			dbPlaying.off();
+
+			ticking.stop();
+			alarm.stop();
 		};
 	});
 </script>
@@ -182,7 +221,7 @@
 			{team2}
 		</div>
 	</div>
-	<h1 class="text-center">{isYourTurn ? 'Your' : turn + "'s"} Turn</h1>
+	<h1 class="text-center">{isYourTurn ? 'Your' : usernames[turn] + "'s"} Turn</h1>
 	<p class="text-2xl text-center">
 		<Timer seconds={timer} />
 	</p>
@@ -218,6 +257,7 @@
 </Layout>
 
 <Modal bind:show={showQrCode}>
+	<h2 slot="title">{roomId}</h2>
 	<QrCode value={location.href} />
 </Modal>
 
