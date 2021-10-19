@@ -28,6 +28,7 @@
 	import { XorShiftRng } from '@aicacia/rand';
 	import { generateRoomId, keys } from '$lib/util';
 	import { getUserId, userId } from '$lib/state/userId';
+	import { createToast } from '$lib/state/toasts';
 
 	export let roomId: string;
 
@@ -35,9 +36,14 @@
 		goto(`${base}/game?room=${roomId}`);
 	}
 
-	let users: [userId: string, user: IUser][] = [];
-	$: team1 = users.filter(([, user]) => user.team === 'team1').length;
-	$: team2 = users.length - team1;
+	function sortById([aId]: [id: string, user: IUser], [bId]: [id: string, user: IUser]) {
+		return aId.localeCompare(bId);
+	}
+
+	let users: { [id: string]: IUser } = {};
+	$: userList = Object.entries(users).sort(sortById) as [id: string, user: IUser][];
+	$: team1 = userList.filter(([_, user]) => user.team === 'team1').length;
+	$: team2 = userList.length - team1;
 	let started = false;
 	let words: string;
 
@@ -86,6 +92,31 @@
 		prevUserId = id;
 	}
 
+	function onShare() {
+		if (navigator && navigator.share) {
+			navigator
+				.share({
+					title: document.title,
+					text: 'Join my Game!',
+					url: location.href
+				})
+				.then(() => createToast('Successful shared!', 'success'))
+				.catch((err) => createToast(err.message, 'error'));
+		} else if (navigator && navigator.clipboard) {
+			navigator.clipboard
+				.writeText(location.href)
+				.then(() => createToast('Successful Copied!', 'success'));
+		} else {
+			const element = document.createElement('input');
+			element.style.display = 'none';
+			element.textContent = location.href;
+			document.body.appendChild(element);
+			element.select();
+			document.execCommand('copy');
+			document.body.removeChild(element);
+		}
+	}
+
 	onMount(() => {
 		const dbRoom = db.get('rooms').get(roomId),
 			dbUsers = dbRoom.get('users').on(async (state) => {
@@ -103,7 +134,13 @@
 								)
 						)
 					)
-				).sort();
+				).reduce(
+					(acc, [userId, user]) => ({
+						...acc,
+						[userId]: user
+					}),
+					{}
+				);
 			}),
 			dbWords = dbRoom.get('words').on((state) => {
 				words = state;
@@ -147,9 +184,13 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Word Games!: Lobby {roomId}</title>
+</svelte:head>
+
 <Layout>
-	<h1 class="text-6xl text-center cursor-pointer" on:click={() => (showQrCode = true)}>
-		{roomId}
+	<h1 class="text-center cursor-pointer" on:click={() => (showQrCode = true)}>
+		Room Id {roomId}
 	</h1>
 	<div class="mt-2">
 		<label for="name">Name</label>
@@ -163,7 +204,13 @@
 			{/each}
 		</select>
 	</div>
+	<div class="flex">
+		<button class="btn md primary w-full mb-2" on:click={onShare}>Share Game {roomId}</button>
+	</div>
 	<div class="mt-2 mb-2">
+		<h2 class="text-center">
+			Teams (You are on {users[$userId]?.team === 'team1' ? 'Blue' : 'Red'})
+		</h2>
 		<div class="mt-2 mb-2 flex justify-center">
 			<div class="btn md primary flex-1 text-center">
 				{team1}
@@ -172,7 +219,7 @@
 				{team2}
 			</div>
 		</div>
-		{#each users as [id, user], index (id)}
+		{#each userList as [id, user], index (id)}
 			<div class="flex justify-between" class:bg-gray-200={id === $userId}>
 				<div class="flex-grow">
 					<p class="text-2xl p-1 font-bold">{index + 1} - {user.name}</p>
@@ -209,17 +256,17 @@
 	<div class="flex justify-center">
 		<button
 			class="btn lg primary flex-1"
-			class:bg-blue-100={users.length < 2}
-			class:hover:bg-blue-500={users.length > 1}
+			class:bg-blue-100={userList.length < 2}
+			class:hover:bg-blue-500={userList.length > 1}
 			on:click={onStartGame}
-			disabled={users.length < 2}>Start</button
+			disabled={userList.length < 2}>Start</button
 		>
 		<button class="btn lg danger flex-1" on:click={() => (showExit = true)}>Leave</button>
 	</div>
 </Layout>
 
 <Modal bind:show={showQrCode}>
-	<h2 slot="title">{roomId}</h2>
+	<h2 slot="title">Room Id {roomId}</h2>
 	<QrCode value={location.href} />
 </Modal>
 

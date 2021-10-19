@@ -11,12 +11,21 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Word Games!</title>
+</svelte:head>
+
 <Layout>
 	<a class="text-6xl bold mt-2 mb-8 text-center" href={`${base}/`}>WordGames!</a>
 
-	<button class="btn lg primary block" on:click={onHost}>Host</button>
+	<button class="btn lg primary block" on:click={onHost}>Create a Game</button>
 	<div class="flex mt-8">
-		<input class="input flex-grow" type="text" bind:value={roomId} placeholder="Room Id" />
+		<input
+			class="input flex-grow"
+			type="text"
+			bind:value={roomId}
+			placeholder="Join a Game with a Room Id"
+		/>
 		{#if roomId}
 			<a class="btn lg primary flex-grow-0" href={`${base}/lobby?room=${roomId.toLowerCase()}`}
 				>Join</a

@@ -208,9 +208,13 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Word Games!: Playing Game in {roomId}</title>
+</svelte:head>
+
 <Layout>
-	<h1 class="text-6xl text-center cursor-pointer" on:click={() => (showQrCode = true)}>
-		{roomId}
+	<h1 class="text-center cursor-pointer" on:click={() => (showQrCode = true)}>
+		Room Id {roomId}
 	</h1>
 
 	<div class="flex justify-center mt-2">
@@ -269,7 +273,7 @@
 </Layout>
 
 <Modal bind:show={showQrCode}>
-	<h2 slot="title">{roomId}</h2>
+	<h2 slot="title">Room Id {roomId}</h2>
 	<QrCode value={location.href} />
 </Modal>
 

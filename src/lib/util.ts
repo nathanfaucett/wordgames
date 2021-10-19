@@ -6,7 +6,7 @@ export function generateRoomId(length = 6): string {
 		.iter()
 		.map(() =>
 			random() < 0.25
-				? Math.floor(random() * 10)
+				? Math.floor(1 + random() * 9)
 				: String.fromCharCode(97 + Math.floor(random() * 26))
 		)
 		.join('');
