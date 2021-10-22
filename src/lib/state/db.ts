@@ -1,5 +1,4 @@
 import Gun from 'gun';
-import 'gun/sea.js';
 import 'gun/axe.js';
 import type { Words } from './words';
 

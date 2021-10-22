@@ -4,5 +4,7 @@ node_modules
 /build
 /.svelte-kit
 /package
+/src-tauri/target/
+WixTools
 .env
 !.env.*

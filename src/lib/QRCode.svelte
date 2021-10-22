@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let value: string;
-	export let size: number = 512;
+	export let size = 512;
 
 	let qrcode: QRious;
 	let element: HTMLDivElement;
