@@ -46,9 +46,10 @@
 		"@aicacia/core": "^0.2.13",
 		"@aicacia/rand": "^0.2.7",
 		"eventemitter3": "^4.0.7",
-		"gun": "^0.2020.1235",
 		"howler": "^2.2.3",
 		"localforage": "^1.10.0",
-		"uuid": "^8.3.2"
+		"uuid": "^8.3.2",
+		"y-webrtc": "^10.2.0",
+		"yjs": "^13.5.16"
 	}
 }

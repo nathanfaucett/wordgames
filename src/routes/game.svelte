@@ -34,24 +34,30 @@
 	import Timer from '$lib/Timer.svelte';
 	import Modal from '$lib/Modal.svelte';
 	import QrCode from '$lib/QRCode.svelte';
-	import type { IUser } from '$lib/state/db';
-	import { db, IRoom } from '$lib/state/db';
+	import { getOrCreateRoom, IUser, IUsers } from '$lib/state/rooms';
+	import { rooms } from '$lib/state/rooms';
 	import { XorShiftRng } from '@aicacia/rand';
-	import { getWord } from '$lib/state/words';
-	import { keys } from '$lib/util';
+	import { getWord, Words } from '$lib/state/words';
 	import { userId } from '$lib/state/userId';
+	import type { Map } from 'yjs';
+	import { sortById } from '$lib/util';
 
 	export let roomId: string;
 
-	let users: { [userId: string]: IUser } = {};
-	let team1: number;
-	let team2: number;
-	let turn: string;
-	let playing = false;
-	let started = true;
+	$: room = getOrCreateRoom($rooms, roomId);
+	$: users = room.get('users') as Map<IUsers[keyof IUsers]>;
+	$: userList = Array.from(users.entries()).sort(sortById) as [
+		id: string,
+		user: Map<IUser[keyof IUser]>
+	][];
+	$: team1 = (room.get('team1') as number) || 0;
+	$: team2 = (room.get('team2') as number) || 0;
+	$: started = (room.get('started') as boolean) || true;
+	$: playing = (room.get('playing') as boolean) || false;
+	$: turn = room.get('turn') as string;
 	$: isYourTurn = turn === $userId;
-	let timer;
-	let word: string;
+	$: timer = room.get('timer') as number;
+	$: word = room.get('word') as string;
 
 	$: if (browser && !started) {
 		goto(`${base}/lobby?room=${roomId}`);
@@ -67,45 +73,38 @@
 	let showQrCode = false;
 	let showExit = false;
 
-	async function onStart() {
+	$: onStart = async () => {
 		await onSkipWord();
-		db.get('rooms').get(roomId).get('playing').put(true);
-	}
-	async function onSkipWord() {
-		const dbRoom = db.get('rooms').get(roomId),
-			room = (await dbRoom) as unknown as IRoom,
-			rng = XorShiftRng.fromSeed(room.seed),
-			word = await getWord(rng, room.words);
+		room.set('playing', true);
+	};
+	$: onSkipWord = async () => {
+		const rng = XorShiftRng.fromSeed(room.get('seed') as number),
+			word = await getWord(rng, room.get('words') as Words);
 
-		dbRoom.get('word').put(word);
-		dbRoom.get('seed').put(rng.nextInt());
-	}
-	async function onNext() {
-		const dbRoom = db.get('rooms').get(roomId),
-			dbUsers = dbRoom.get('users'),
-			users = keys((await dbUsers) as unknown as Record<string, IUser>).sort();
-
-		dbRoom.get('turn').put(users[(users.indexOf(turn) + 1) % users.length]);
+		room.set('word', word);
+		room.set('seed', rng.nextInt());
+	};
+	$: onNext = async () => {
+		const [turnId] = userList[(userList.findIndex(([id]) => turn === id) + 1) % users.size];
+		room.set('turn', turnId);
 		ticking.stop();
 		await onSkipWord();
-	}
+	};
 
 	let timerInterval: NodeJS.Timeout;
-	function startTimer(startTime: number = DEFAULT_TIME) {
+	$: startTimer = (startTime: number = DEFAULT_TIME) => {
 		if (timerInterval != null) {
 			return;
 		}
-		const dbTimer = db.get('rooms').get(roomId).get('timer');
-
 		timerInterval = setInterval(async () => {
-			const currentTime = (await dbTimer) as unknown as number;
+			const currentTime = room.get('timer') as number;
 
 			if (currentTime === 0) {
 				stopTimer();
 			} else {
 				const nextTime = currentTime - 1;
 				ticking.rate(1 + (1 - nextTime / DEFAULT_TIME));
-				dbTimer.put(nextTime);
+				room.set('timer', nextTime);
 			}
 		}, 1000);
 
@@ -113,95 +112,32 @@
 		if (!ticking.playing()) {
 			ticking.play();
 		}
-		dbTimer.put(startTime);
-	}
+		room.set('timer', startTime);
+	};
 
-	function stopTimer() {
+	$: stopTimer = () => {
 		if (timerInterval == null) {
 			return;
 		}
-		const dbRoom = db.get('rooms').get(roomId),
-			dbUser = dbRoom.get('users').get(turn),
-			dbTimer = dbRoom.get('timer');
+		const user = users.get(turn);
 
-		Promise.all([dbRoom as unknown as Promise<IRoom>, dbUser as unknown as Promise<IUser>]).then(
-			([room, user]) => {
-				if (user.team === 'team1') {
-					dbRoom.get('team2').put(room.team1 + 1);
-				} else {
-					dbRoom.get('team1').put(room.team2 + 1);
-				}
-			}
-		);
+		if (user.get('team') === 'team1') {
+			room.set('team2', ((room.get('team2') as number) || 0) + 1);
+		} else {
+			room.set('team1', ((room.get('team1') as number) || 0) + 1);
+		}
 
-		dbTimer.put(0);
-		(dbRoom.get('playing').put(false) as unknown as Promise<void>).then(() => {
-			timerInterval = undefined;
-		});
+		room.set('timer', 0);
+		room.set('playing', false);
 		clearInterval(timerInterval);
+		timerInterval = undefined;
 
 		ticking.stop();
 		alarm.play();
-	}
+	};
 
 	onMount(() => {
-		const dbRoom = db.get('rooms').get(roomId);
-
-		const dbUsers = dbRoom.get('users').on(async (state) => {
-				users = (
-					await Promise.all(
-						keys(state).map(
-							(userId) =>
-								new Promise<[userId: string, user: IUser]>((resolve) =>
-									dbRoom
-										.get('users')
-										.get(userId)
-										.once((user) =>
-											resolve([userId, user] as unknown as [userId: string, user: IUser])
-										)
-								)
-						)
-					)
-				).reduce(
-					(acc, [userId, user]) => ({
-						...acc,
-						[userId]: user
-					}),
-					{}
-				);
-			}),
-			dbTimer = dbRoom.get('timer').on((state) => {
-				timer = state;
-			}),
-			dbStarted = dbRoom.get('started').on((state) => {
-				started = state;
-			}),
-			dbTeam1 = dbRoom.get('team1').on((state) => {
-				team1 = state;
-			}),
-			dbTeam2 = dbRoom.get('team2').on((state) => {
-				team2 = state;
-			}),
-			dbWord = dbRoom.get('word').on((state) => {
-				word = state;
-			}),
-			dbTurn = dbRoom.get('turn').on((state) => {
-				turn = state;
-			}),
-			dbPlaying = dbRoom.get('playing').on((state) => {
-				playing = state;
-			});
-
 		return () => {
-			dbUsers.off();
-			dbTimer.off();
-			dbStarted.off();
-			dbTeam1.off();
-			dbTeam2.off();
-			dbWord.off();
-			dbTurn.off();
-			dbPlaying.off();
-
 			ticking.stop();
 			alarm.stop();
 		};
@@ -227,15 +163,15 @@
 	</div>
 	<h1
 		class="text-center text-white rounded py-4 my-4"
-		class:bg-blue-500={users[$userId]?.team === 'team1'}
-		class:bg-red-500={users[$userId]?.team === 'team2'}
+		class:bg-blue-500={users.get($userId)?.get('team') === 'team1'}
+		class:bg-red-500={users.get($userId)?.get('team') === 'team2'}
 	>
 		{#if isYourTurn}
 			Your Turn
-		{:else if users[$userId]?.team === users[turn]?.team}
-			{users[turn]?.name} and your Team's turn
+		{:else if users.get($userId)?.get('team') === users.get(turn)?.get('team')}
+			{users.get(turn)?.get('name')} and your Team's turn
 		{:else}
-			{users[turn]?.name}'s turn
+			{users.get(turn)?.get('name')}'s turn
 		{/if}
 	</h1>
 	<p class="text-2xl text-center">

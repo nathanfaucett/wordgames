@@ -15,20 +15,21 @@
 </script>
 
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import Layout from '$lib/Layout.svelte';
 	import { browser } from '$app/env';
 	import { base } from '$app/paths';
 	import Modal from '$lib/Modal.svelte';
 	import QrCode from '$lib/QRCode.svelte';
-	import { db } from '$lib/state/db';
-	import type { IRoom, IUser } from '$lib/state/db';
+	import { getOrCreateRoom, IUser, IUsers } from '$lib/state/rooms';
+	import { rooms } from '$lib/state/rooms';
 	import { Words } from '$lib/state/words';
 	import { XorShiftRng } from '@aicacia/rand';
-	import { generateRoomId, keys } from '$lib/util';
+	import { generateRoomId, sortById } from '$lib/util';
 	import { getUserId, userId } from '$lib/state/userId';
 	import { createToast } from '$lib/state/toasts';
+	import { Map } from 'yjs';
+	import { onMount } from 'svelte';
 
 	export let roomId: string;
 
@@ -36,59 +37,84 @@
 		goto(`${base}/game?room=${roomId}`);
 	}
 
-	function sortById([aId]: [id: string, user: IUser], [bId]: [id: string, user: IUser]) {
-		return aId.localeCompare(bId);
-	}
-
-	let users: { [id: string]: IUser } = {};
-	$: userList = Object.entries(users).sort(sortById) as [id: string, user: IUser][];
-	$: team1 = userList.filter(([_, user]) => user.team === 'team1').length;
+	$: room = getOrCreateRoom($rooms, roomId);
+	$: users = room.get('users') as Map<IUsers[keyof IUsers]>;
+	$: userList = Array.from(users.entries()).sort(sortById) as [
+		id: string,
+		user: Map<IUser[keyof IUser]>
+	][];
+	$: team1 = userList.filter(([_, user]) => user.get('team') === 'team1').length;
 	$: team2 = userList.length - team1;
-	let started = false;
-	let words: string;
+	$: started = room.get('started');
+	$: words = room.get('words');
 
 	let showQrCode = false;
 	let showExit = false;
 
 	let username = `guest-${generateRoomId()}`;
-	async function onChangeName() {
+	$: onChangeName = async () => {
 		const userId = await getUserId();
-		db.get('rooms').get(roomId).get('users').get(userId).get('name').put(username);
-	}
+		const user =
+			users.get(userId) ||
+			users.set(
+				userId,
+				new Map<IUser[keyof IUser]>(
+					Object.entries({
+						userId,
+						name: username,
+						team: 'team1'
+					})
+				)
+			);
+		user.set('name', username);
+	};
 
-	function onSelectWords(e: Event & { currentTarget: EventTarget & HTMLSelectElement }) {
-		db.get('rooms')
-			.get(roomId)
-			.get('words')
-			.put(e.currentTarget.value as Words);
-	}
+	$: onSelectWords = (e: Event & { currentTarget: EventTarget & HTMLSelectElement }) => {
+		room.set('words', e.currentTarget.value as Words);
+	};
 
-	function createOnSetTeam(userId: string, team: string, newTeam: string) {
-		return function onSetTeam() {
-			if (team !== newTeam) {
-				db.get('rooms').get(roomId).get('users').get(userId).get('team').put(newTeam);
-			}
-		};
-	}
+	$: createOnSetTeam = (userId: string, team: string, newTeam: string) => () => {
+		if (team !== newTeam) {
+			const user =
+				users.get(userId) ||
+				users.set(
+					userId,
+					new Map<IUser[keyof IUser]>(
+						Object.entries({
+							userId,
+							name: username,
+							team: 'team1'
+						})
+					)
+				);
+			user.set('team', newTeam);
+		}
+	};
 
-	async function onStartGame() {
-		const dbRoom = db.get('rooms').get(roomId),
-			dbUsers = dbRoom.get('users'),
-			users = (await dbUsers) as unknown as Record<string, string>,
-			room = (await dbRoom) as unknown as IRoom,
-			rng = XorShiftRng.fromSeed(room.seed);
-
-		dbRoom.get('turn').put(rng.fromArray(keys(users)).unwrap());
-		dbRoom.get('started').put(true);
-	}
+	$: onStartGame = async () => {
+		const rng = XorShiftRng.fromSeed(room.get('seed') as number);
+		room.set('turn', rng.fromArray(Array.from(users.keys())).unwrap());
+		room.set('started', true);
+	};
 
 	let prevUserId: string;
 	$: if ($userId && prevUserId !== $userId) {
 		const id = $userId;
-		db.get('rooms').get(roomId).get('users').get(id).get('team').put('team1');
+		let prevUser: Map<IUser[keyof IUser]> | undefined;
 		if (prevUserId) {
-			db.get('rooms').get(roomId).get('users').get(prevUserId).put(null);
+			prevUser = users.get(prevUserId);
+			users.delete(prevUserId);
 		}
+		users.set(
+			id,
+			new Map<IUser[keyof IUser]>(
+				Object.entries({
+					id,
+					name: prevUser?.get('name') || username,
+					team: prevUser?.get('team') || 'team1'
+				})
+			)
+		);
 		prevUserId = id;
 	}
 
@@ -117,70 +143,14 @@
 		}
 	}
 
-	onMount(() => {
-		const dbRoom = db.get('rooms').get(roomId),
-			dbUsers = dbRoom.get('users').on(async (state) => {
-				users = (
-					await Promise.all(
-						keys(state).map(
-							(userId) =>
-								new Promise<[userId: string, user: IUser]>((resolve) =>
-									dbRoom
-										.get('users')
-										.get(userId)
-										.once((user) =>
-											resolve([userId, user] as unknown as [userId: string, user: IUser])
-										)
-								)
-						)
-					)
-				).reduce(
-					(acc, [userId, user]) => ({
-						...acc,
-						[userId]: user
-					}),
-					{}
-				);
-			}),
-			dbWords = dbRoom.get('words').on((state) => {
-				words = state;
-			}),
-			dbStated = dbRoom.get('started').on((state) => {
-				started = state;
-			});
+	onMount(async () => {
+		const userId = await getUserId(),
+			user = users.get(userId);
 
-		getUserId().then((userId) =>
-			dbRoom
-				.get('users')
-				.get(userId)
-				.get('name')
-				.once((state) => {
-					const name = state as unknown as string;
-					if (name) {
-						username = name;
-					}
-				})
-		);
-		dbRoom.once((state) => {
-			if (!state?.seed) {
-				const seed = Date.now();
-				dbRoom.put({
-					seed,
-					team1: 0,
-					team2: 0,
-					started: false,
-					words: Words.Medium
-				});
-			}
-		});
-
-		onChangeName();
-
-		return () => {
-			dbUsers.off();
-			dbWords.off();
-			dbStated.off();
-		};
+		if (user && user.get('name')) {
+			username = user.get('name');
+			user.set('name', username);
+		}
 	});
 </script>
 
@@ -219,13 +189,16 @@
 				{team2}
 			</div>
 		</div>
-		{#each userList as [id, user], index (id)}
+		{#each userList as [id, user], index (id + user.get('team'))}
 			<div class="flex justify-between" class:bg-gray-200={id === $userId}>
 				<div class="flex-grow">
-					<p class="text-2xl p-1 font-bold">{index + 1} - {user.name}</p>
+					<p class="text-2xl p-1 font-bold">{index + 1} - {user.get('name')}</p>
 				</div>
 				<form class="flex-grow-0 flex flex-row">
-					<div class="btn sm primary flex-1" on:click={createOnSetTeam(id, user.team, 'team1')}>
+					<div
+						class="btn sm primary flex-1"
+						on:click={createOnSetTeam(id, user.get('team'), 'team1')}
+					>
 						<input
 							id={`${id}-team-1`}
 							name="team"
@@ -233,10 +206,13 @@
 							type="radio"
 							class="align-bottom"
 							on:click|preventDefault
-							checked={user.team === 'team1'}
+							checked={user.get('team') === 'team1'}
 						/>
 					</div>
-					<div class="btn sm danger flex-1" on:click={createOnSetTeam(id, user.team, 'team2')}>
+					<div
+						class="btn sm danger flex-1"
+						on:click={createOnSetTeam(id, user.get('team'), 'team2')}
+					>
 						<input
 							id={`${id}-team-2`}
 							name="team"
@@ -244,7 +220,7 @@
 							type="radio"
 							class="align-bottom"
 							on:click|preventDefault
-							checked={user.team === 'team2'}
+							checked={user.get('team') === 'team2'}
 						/>
 					</div>
 				</form>
