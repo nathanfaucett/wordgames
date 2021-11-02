@@ -13,7 +13,7 @@
 		};
 	}
 
-	const DEFAULT_TIME = 60;
+	const DEFAULT_TIME = 30;
 
 	const alarm = new Howl({
 		src: [`${base}/sounds/alarm-clock.mp3`, `${base}/sounds/alarm-clock.wav`]
@@ -34,30 +34,28 @@
 	import Timer from '$lib/Timer.svelte';
 	import Modal from '$lib/Modal.svelte';
 	import QrCode from '$lib/QRCode.svelte';
-	import { getOrCreateRoom, IUser, IUsers } from '$lib/state/rooms';
-	import { rooms } from '$lib/state/rooms';
+	import type { IUser, IUsers } from '$lib/state/rooms';
+	import { graph } from '$lib/state/rooms';
 	import { XorShiftRng } from '@aicacia/rand';
 	import { getWord, Words } from '$lib/state/words';
 	import { userId } from '$lib/state/userId';
-	import type { Map } from 'yjs';
 	import { sortById } from '$lib/util';
+	import { get } from 'svelte/store';
 
 	export let roomId: string;
 
-	$: room = getOrCreateRoom($rooms, roomId);
-	$: users = room.get('users') as Map<IUsers[keyof IUsers]>;
-	$: userList = Array.from(users.entries()).sort(sortById) as [
-		id: string,
-		user: Map<IUser[keyof IUser]>
-	][];
-	$: team1 = (room.get('team1') as number) || 0;
-	$: team2 = (room.get('team2') as number) || 0;
-	$: started = (room.get('started') as boolean) || true;
-	$: playing = (room.get('playing') as boolean) || false;
-	$: turn = room.get('turn') as string;
-	$: isYourTurn = turn === $userId;
-	$: timer = room.get('timer') as number;
-	$: word = room.get('word') as string;
+	let users: IUsers = {};
+	let userList: [id: string, user: IUser][] = [];
+	let words = Words.Medium;
+	let seed = Date.now();
+	let team1 = 0;
+	let team2 = 0;
+	let started = true;
+	let playing = false;
+	let turn = '';
+	let isYourTurn = false;
+	let timer = 0;
+	let word = '';
 
 	$: if (browser && !started) {
 		goto(`${base}/lobby?room=${roomId}`);
@@ -66,45 +64,45 @@
 	$: if (isYourTurn && playing) {
 		startTimer(timer === 0 ? DEFAULT_TIME : timer);
 	} else if (timerInterval != null) {
-		clearInterval(timerInterval);
+		clearInterval(timerInterval as number);
 		timerInterval = undefined;
 	}
 
 	let showQrCode = false;
 	let showExit = false;
 
-	$: onStart = async () => {
+	async function onStart() {
 		await onSkipWord();
-		room.set('playing', true);
-	};
-	$: onSkipWord = async () => {
-		const rng = XorShiftRng.fromSeed(room.get('seed') as number),
-			word = await getWord(rng, room.get('words') as Words);
+		graph.get('rooms').get(roomId).get('playing').set(true);
+	}
+	async function onSkipWord() {
+		const rng = XorShiftRng.fromSeed(seed),
+			word = await getWord(rng, words);
 
-		room.set('word', word);
-		room.set('seed', rng.nextInt());
-	};
-	$: onNext = async () => {
-		const [turnId] = userList[(userList.findIndex(([id]) => turn === id) + 1) % users.size];
-		room.set('turn', turnId);
+		graph.get('rooms').get(roomId).get('word').set(word);
+		graph.get('rooms').get(roomId).get('seed').set(rng.nextInt());
+	}
+	async function onNext() {
+		const [turnId] = userList[(userList.findIndex(([id]) => turn === id) + 1) % userList.length];
+		graph.get('rooms').get(roomId).get('turn').set(turnId);
 		ticking.stop();
 		await onSkipWord();
-	};
+	}
 
-	let timerInterval: NodeJS.Timeout;
-	$: startTimer = (startTime: number = DEFAULT_TIME) => {
+	let timerInterval: unknown | undefined;
+	function startTimer(startTime: number = DEFAULT_TIME) {
 		if (timerInterval != null) {
 			return;
 		}
-		timerInterval = setInterval(async () => {
-			const currentTime = room.get('timer') as number;
+		timerInterval = setInterval(() => {
+			const currentTime = timer;
 
 			if (currentTime === 0) {
 				stopTimer();
 			} else {
 				const nextTime = currentTime - 1;
 				ticking.rate(1 + (1 - nextTime / DEFAULT_TIME));
-				room.set('timer', nextTime);
+				graph.get('rooms').get(roomId).get('timer').set(nextTime);
 			}
 		}, 1000);
 
@@ -112,34 +110,121 @@
 		if (!ticking.playing()) {
 			ticking.play();
 		}
-		room.set('timer', startTime);
-	};
+		graph.get('rooms').get(roomId).get('timer').set(startTime);
+	}
 
-	$: stopTimer = () => {
+	function stopTimer() {
 		if (timerInterval == null) {
 			return;
 		}
-		const user = users.get(turn);
+		const user = users[turn],
+			room = graph.get('rooms').get(roomId);
 
-		if (user.get('team') === 'team1') {
-			room.set('team2', ((room.get('team2') as number) || 0) + 1);
+		if (user.team === 'team1') {
+			graph
+				.get('rooms')
+				.get('team2')
+				.set(team2 + 1);
 		} else {
-			room.set('team1', ((room.get('team1') as number) || 0) + 1);
+			graph
+				.get('rooms')
+				.get('team1')
+				.set(team1 + 1);
 		}
 
-		room.set('timer', 0);
-		room.set('playing', false);
-		clearInterval(timerInterval);
+		graph.get('rooms').get('timer').set(0);
+		graph.get('rooms').get('playing').set(false);
+		clearInterval(timerInterval as number);
 		timerInterval = undefined;
+		playing = false;
 
 		ticking.stop();
 		alarm.play();
-	};
+	}
 
 	onMount(() => {
+		const removeCallbacks = [
+			graph
+				.get('rooms')
+				.get(roomId)
+				.get('seed')
+				.on((state) => {
+					seed = state as number;
+				}),
+			graph
+				.get('rooms')
+				.get(roomId)
+				.get('started')
+				.on((state) => {
+					started = state as boolean;
+				}),
+			graph
+				.get('rooms')
+				.get(roomId)
+				.get('playing')
+				.on((state) => {
+					playing = state as boolean;
+				}),
+			graph
+				.get('rooms')
+				.get(roomId)
+				.get('team1')
+				.on((state) => {
+					team1 = state as number;
+				}),
+			graph
+				.get('rooms')
+				.get(roomId)
+				.get('team2')
+				.on((state) => {
+					team2 = state as number;
+				}),
+			graph
+				.get('rooms')
+				.get(roomId)
+				.get('words')
+				.on((state) => {
+					words = state as Words;
+				}),
+			graph
+				.get('rooms')
+				.get(roomId)
+				.get('word')
+				.on((state) => {
+					word = state as string;
+				}),
+			graph
+				.get('rooms')
+				.get(roomId)
+				.get('turn')
+				.on((state) => {
+					turn = state as string;
+					isYourTurn = get(userId) === turn;
+				}),
+			graph
+				.get('rooms')
+				.get(roomId)
+				.get('timer')
+				.on((state) => {
+					timer = state as number;
+				}),
+			graph
+				.get('rooms')
+				.get(roomId)
+				.get('users')
+				.on((state) => {
+					users = state as unknown as IUsers;
+					userList = Array.from(Object.entries(users)).sort(sortById) as [
+						id: string,
+						user: IUser
+					][];
+				})
+		];
+
 		return () => {
 			ticking.stop();
 			alarm.stop();
+			removeCallbacks.forEach((removeCallback) => removeCallback());
 		};
 	});
 </script>
@@ -163,15 +248,15 @@
 	</div>
 	<h1
 		class="text-center text-white rounded py-4 my-4"
-		class:bg-blue-500={users.get($userId)?.get('team') === 'team1'}
-		class:bg-red-500={users.get($userId)?.get('team') === 'team2'}
+		class:bg-blue-500={users[$userId]?.team === 'team1'}
+		class:bg-red-500={users[$userId]?.team === 'team2'}
 	>
 		{#if isYourTurn}
 			Your Turn
-		{:else if users.get($userId)?.get('team') === users.get(turn)?.get('team')}
-			{users.get(turn)?.get('name')} and your Team's turn
+		{:else if users[$userId]?.team === users[turn]?.team}
+			{users[turn]?.name} and your Team's turn
 		{:else}
-			{users.get(turn)?.get('name')}'s turn
+			{users[turn]?.name}'s turn
 		{/if}
 	</h1>
 	<p class="text-2xl text-center">

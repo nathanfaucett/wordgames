@@ -1,6 +1,6 @@
 /// <reference types="@sveltejs/kit" />
 
-import type PeerJS from 'peerjs';
+import type SimplePeer from 'simple-peer';
 
 declare global {
 	interface ImportMetaEnv {
@@ -36,7 +36,7 @@ declare global {
 	}
 
 	interface Window {
-		Peer: typeof PeerJS;
+		SimplePeer: SimplePeer.SimplePeer;
 		QRious: typeof QRious;
 	}
 }

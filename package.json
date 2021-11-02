@@ -23,6 +23,7 @@
 		"@tauri-apps/api": "^1.0.0-beta.8",
 		"@tauri-apps/cli": "^1.0.0-beta.10",
 		"@types/howler": "^2.2.4",
+		"@types/simple-peer": "^9.11.3",
 		"@types/uuid": "^8.3.1",
 		"@typescript-eslint/eslint-plugin": "^5.1.0",
 		"@typescript-eslint/parser": "^5.1.0",
@@ -35,21 +36,21 @@
 		"postcss-load-config": "^3.1.0",
 		"prettier": "^2.4.1",
 		"prettier-plugin-svelte": "^2.4.0",
-		"svelte": "^3.44.0",
-		"svelte-check": "^2.2.7",
+		"svelte": "^3.44.1",
+		"svelte-check": "^2.2.8",
 		"svelte-preprocess": "^4.9.8",
-		"tailwindcss": "^2.2.17",
+		"tailwindcss": "^2.2.19",
 		"tslib": "^2.3.1",
 		"typescript": "^4.4.4"
 	},
 	"dependencies": {
 		"@aicacia/core": "^0.2.13",
+		"@aicacia/graph": "github:aicacia/ts-graph#85fe63c459d29ef1847d6e6a24be840d84f64c58",
+		"@aicacia/mesh": "github:aicacia/ts-mesh#c87807f5f301b8cf54212d8c566e52b2256cc754",
 		"@aicacia/rand": "^0.2.7",
 		"eventemitter3": "^4.0.7",
 		"howler": "^2.2.3",
 		"localforage": "^1.10.0",
-		"uuid": "^8.3.2",
-		"y-webrtc": "^10.2.0",
-		"yjs": "^13.5.16"
+		"uuid": "^8.3.2"
 	}
 }
