@@ -117,23 +117,24 @@
 		if (timerInterval == null) {
 			return;
 		}
-		const user = users[turn],
-			room = graph.get('rooms').get(roomId);
+		const user = users[turn];
 
 		if (user.team === 'team1') {
 			graph
 				.get('rooms')
+				.get(roomId)
 				.get('team2')
 				.set(team2 + 1);
 		} else {
 			graph
 				.get('rooms')
+				.get(roomId)
 				.get('team1')
 				.set(team1 + 1);
 		}
 
-		graph.get('rooms').get('timer').set(0);
-		graph.get('rooms').get('playing').set(false);
+		graph.get('rooms').get(roomId).get('timer').set(0);
+		graph.get('rooms').get(roomId).get('playing').set(false);
 		clearInterval(timerInterval as number);
 		timerInterval = undefined;
 		playing = false;
