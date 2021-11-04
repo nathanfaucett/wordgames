@@ -40,12 +40,18 @@
 	import { getWord, Words } from '$lib/state/words';
 	import { userId } from '$lib/state/userId';
 	import { sortById } from '$lib/util';
-	import { get } from 'svelte/store';
+	import { IGetValue, Ref } from '@aicacia/graph';
 
 	export let roomId: string;
 
+	$: if (browser && !started) {
+		goto(`${base}/lobby?room=${roomId}`);
+	}
+
+	$: room = graph.get('rooms').get(roomId);
+
 	let users: IUsers = {};
-	let userList: [id: string, user: IUser][] = [];
+	$: userList = Array.from(Object.entries(users)).sort(sortById) as [id: string, user: IUser][];
 	let words = Words.Medium;
 	let seed = Date.now();
 	let team1 = 0;
@@ -53,13 +59,9 @@
 	let started = true;
 	let playing = false;
 	let turn = '';
-	let isYourTurn = false;
+	$: isYourTurn = turn === $userId;
 	let timer = 0;
 	let word = '';
-
-	$: if (browser && !started) {
-		goto(`${base}/lobby?room=${roomId}`);
-	}
 
 	$: if (isYourTurn && playing) {
 		startTimer(timer === 0 ? DEFAULT_TIME : timer);
@@ -73,18 +75,18 @@
 
 	async function onStart() {
 		await onSkipWord();
-		graph.get('rooms').get(roomId).get('playing').set(true);
+		room.get('playing').set(true);
 	}
 	async function onSkipWord() {
 		const rng = XorShiftRng.fromSeed(seed),
 			word = await getWord(rng, words);
 
-		graph.get('rooms').get(roomId).get('word').set(word);
-		graph.get('rooms').get(roomId).get('seed').set(rng.nextInt());
+		room.get('word').set(word);
+		room.get('seed').set(rng.nextInt());
 	}
 	async function onNext() {
 		const [turnId] = userList[(userList.findIndex(([id]) => turn === id) + 1) % userList.length];
-		graph.get('rooms').get(roomId).get('turn').set(turnId);
+		room.get('turn').set(turnId);
 		ticking.stop();
 		await onSkipWord();
 	}
@@ -102,7 +104,7 @@
 			} else {
 				const nextTime = currentTime - 1;
 				ticking.rate(1 + (1 - nextTime / DEFAULT_TIME));
-				graph.get('rooms').get(roomId).get('timer').set(nextTime);
+				room.get('timer').set(nextTime);
 			}
 		}, 1000);
 
@@ -110,7 +112,7 @@
 		if (!ticking.playing()) {
 			ticking.play();
 		}
-		graph.get('rooms').get(roomId).get('timer').set(startTime);
+		room.get('timer').set(startTime);
 	}
 
 	function stopTimer() {
@@ -120,21 +122,13 @@
 		const user = users[turn];
 
 		if (user.team === 'team1') {
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('team2')
-				.set(team2 + 1);
+			room.get('team2').set(team2 + 1);
 		} else {
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('team1')
-				.set(team1 + 1);
+			room.get('team1').set(team1 + 1);
 		}
 
-		graph.get('rooms').get(roomId).get('timer').set(0);
-		graph.get('rooms').get(roomId).get('playing').set(false);
+		room.get('timer').set(0);
+		room.get('playing').set(false);
 		clearInterval(timerInterval as number);
 		timerInterval = undefined;
 		playing = false;
@@ -145,81 +139,49 @@
 
 	onMount(() => {
 		const removeCallbacks = [
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('seed')
-				.on((state) => {
-					seed = state as number;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('started')
-				.on((state) => {
-					started = state as boolean;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('playing')
-				.on((state) => {
-					playing = state as boolean;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('team1')
-				.on((state) => {
-					team1 = state as number;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('team2')
-				.on((state) => {
-					team2 = state as number;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('words')
-				.on((state) => {
-					words = state as Words;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('word')
-				.on((state) => {
-					word = state as string;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('turn')
-				.on((state) => {
-					turn = state as string;
-					isYourTurn = get(userId) === turn;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('timer')
-				.on((state) => {
-					timer = state as number;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('users')
-				.on((state) => {
-					users = state as unknown as IUsers;
-					userList = Array.from(Object.entries(users)).sort(sortById) as [
-						id: string,
-						user: IUser
-					][];
-				})
+			room.get('seed').on((state) => {
+				seed = state as number;
+			}),
+			room.get('started').on((state) => {
+				started = state as boolean;
+			}),
+			room.get('playing').on((state) => {
+				playing = state as boolean;
+			}),
+			room.get('team1').on((state) => {
+				team1 = state as number;
+			}),
+			room.get('team2').on((state) => {
+				team2 = state as number;
+			}),
+			room.get('words').on((state) => {
+				words = state as Words;
+			}),
+			room.get('word').on((state) => {
+				word = state as string;
+			}),
+			room.get('turn').on((state) => {
+				turn = state as string;
+			}),
+			room.get('timer').on((state) => {
+				timer = state as number;
+			}),
+			room.get('users').on(async (state) => {
+				users = (
+					await Promise.all(
+						Object.entries(state).map(([id, user]: [string, IGetValue]) => {
+							if (user instanceof Ref) {
+								return user.then<IUser>();
+							} else {
+								return user as unknown as IUser;
+							}
+						})
+					)
+				).reduce((acc, user) => {
+					acc[user.id] = user;
+					return acc;
+				}, {} as IUsers);
+			})
 		];
 
 		return () => {

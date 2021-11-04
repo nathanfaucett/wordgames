@@ -45,7 +45,7 @@
 	},
 	"dependencies": {
 		"@aicacia/core": "^0.2.13",
-		"@aicacia/graph": "github:aicacia/ts-graph#f636e9de6c8239134d4e2855c43ac339a7da8796",
+		"@aicacia/graph": "github:aicacia/ts-graph#fd5fcb2c6102f19a1bcb1691867e2d57f49e8673",
 		"@aicacia/mesh": "github:aicacia/ts-mesh#c87807f5f301b8cf54212d8c566e52b2256cc754",
 		"@aicacia/rand": "^0.2.7",
 		"eventemitter3": "^4.0.7",

@@ -8,7 +8,7 @@ export const graph = new Graph();
 let mesh: Mesh;
 
 graph
-	.on('change', (path, json) => {
+	.on('set', (path, json) => {
 		mesh.broadcast({
 			path,
 			json

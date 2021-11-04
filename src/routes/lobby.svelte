@@ -29,61 +29,58 @@
 	import { getUserId, userId } from '$lib/state/userId';
 	import { createToast } from '$lib/state/toasts';
 	import { onMount } from 'svelte';
+	import type { IGetValue } from '@aicacia/graph';
+	import { Ref } from '@aicacia/graph';
 
 	export let roomId: string;
+
+	$: room = graph.get('rooms').get(roomId);
+	$: user = room.get('users').get($userId);
 
 	$: if (browser && started) {
 		goto(`${base}/game?room=${roomId}`);
 	}
 
 	let users: IUsers = {};
-	let userList: [id: string, user: IUser][] = [];
-	let team1 = 0;
-	let team2 = 0;
+	$: userList = Array.from(Object.entries(users)).sort(sortById) as [id: string, user: IUser][];
+	$: team1 = userList.filter(([_, user]) => !user.team || user.team === 'team1').length;
+	$: team2 = userList.length - team1;
 	let started = false;
 	let words = Words.Medium;
 	let seed = Date.now();
 	let showQrCode = false;
 	let showExit = false;
+	let starting = false;
 
 	let username = `guest-${generateRoomId()}`;
-	$: onChangeName = async () => {
-		const userId = await getUserId();
-		graph.get('rooms').get(roomId).get('users').get(userId).get('name').set(username);
+	$: onChangeName = () => {
+		user.get('name').set(username);
 	};
 
 	$: onSelectWords = (e: Event & { currentTarget: EventTarget & HTMLSelectElement }) => {
-		graph
-			.get('rooms')
-			.get(roomId)
-			.get('words')
-			.set(e.currentTarget.value as Words);
+		room.get('words').set(e.currentTarget.value as Words);
 	};
 
 	$: createOnSetTeam = (userId: string, team: string, newTeam: string) => () => {
 		if (team !== newTeam) {
-			graph.get('rooms').get(roomId).get('users').get(userId).get('team').set(newTeam);
+			room.get('users').get(userId).get('team').set(newTeam);
 		}
 	};
 
 	$: onStartGame = async () => {
 		const rng = XorShiftRng.fromSeed(seed);
-		graph
-			.get('rooms')
-			.get(roomId)
-			.get('turn')
-			.set(rng.fromArray(Object.keys(users)).unwrapOr(await getUserId()));
-		graph.get('rooms').get(roomId).get('started').set(true);
-		started = true;
+		room.get('turn').set(rng.fromArray(Object.keys(users)).unwrapOr(await getUserId()));
+		room.get('started').set(true);
+		starting = true;
 	};
 
 	let prevUserId: string;
 	$: if ($userId && prevUserId !== $userId) {
 		const id = $userId;
 		if (prevUserId) {
-			graph.get('rooms').get(roomId).get('users').get(prevUserId).set(null);
+			room.get('users').get(prevUserId).set(null);
 		}
-		graph.get('rooms').get(roomId).get('users').get(id).set({
+		room.get('users').get(id).set({
 			id,
 			name: username,
 			team: 'team1'
@@ -116,46 +113,37 @@
 		}
 	}
 
-	onMount(async () => {
+	onMount(() => {
 		const removeCallbacks = [
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('seed')
-				.on((state) => {
-					seed = state as number;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('started')
-				.on((state) => {
-					started = state as boolean;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('words')
-				.on((state) => {
-					words = state as Words;
-				}),
-			graph
-				.get('rooms')
-				.get(roomId)
-				.get('users')
-				.on((state) => {
-					users = state as unknown as IUsers;
-					userList = Array.from(Object.entries(users)).sort(sortById) as [
-						id: string,
-						user: IUser
-					][];
-					team1 = userList.filter(([_, user]) => !user.team || user.team === 'team1').length;
-					team2 = userList.length - team1;
-				})
+			room.get('seed').on((state) => {
+				seed = state as number;
+			}),
+			room.get('started').on((state) => {
+				started = state as boolean;
+			}),
+			room.get('words').on((state) => {
+				words = state as Words;
+			}),
+			room.get('users').on(async (state) => {
+				users = (
+					await Promise.all(
+						Object.entries(state).map(([id, user]: [string, IGetValue]) => {
+							if (user instanceof Ref) {
+								return user.then<IUser>();
+							} else {
+								return user as unknown as IUser;
+							}
+						})
+					)
+				).reduce((acc, user) => {
+					acc[user.id] = user;
+					return acc;
+				}, {} as IUsers);
+			})
 		];
 
 		getUserId().then((id) => {
-			graph.get('rooms').get(roomId).get('users').get(id).set({
+			room.get('users').get(id).set({
 				id,
 				name: username,
 				team: 'team1'
@@ -243,7 +231,7 @@
 			class:bg-blue-100={userList.length < 2}
 			class:hover:bg-blue-500={userList.length > 1}
 			on:click={onStartGame}
-			disabled={userList.length < 2}>Start</button
+			disabled={userList.length < 2 || starting}>Start</button
 		>
 		<button class="btn lg danger flex-1" on:click={() => (showExit = true)}>Leave</button>
 	</div>
