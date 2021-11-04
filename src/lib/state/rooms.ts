@@ -1,7 +1,6 @@
 import { Graph } from '@aicacia/graph';
 import { Peer, Mesh } from '@aicacia/mesh';
 import type { Words } from './words';
-import type { IGraphJSON } from '@aicacia/graph/types/Graph';
 import { browser } from '$app/env';
 
 export const graph = new Graph();
@@ -9,16 +8,15 @@ export const graph = new Graph();
 let mesh: Mesh;
 
 graph
-	.on('set', (json) => {
+	.on('change', (path, json) => {
 		mesh.broadcast({
-			type: 'set',
-			payload: json
+			path,
+			json
 		});
 	})
 	.on('get', (path) => {
 		mesh.broadcast({
-			type: 'get',
-			payload: path
+			path
 		});
 	});
 
@@ -28,16 +26,16 @@ if (browser) {
 	});
 
 	mesh = new Mesh(peer);
-	mesh.on('data', ({ type, payload }: { type: string; payload: unknown }) => {
-		if (type === 'set') {
-			graph.merge(payload as IGraphJSON);
-		} else if (type === 'get') {
-			const node = graph.getPathNode(payload as string);
+	mesh.on('data', (data) => {
+		if ('json' in data) {
+			graph.merge(data.path, data.json);
+		} else {
+			const node = graph.getNodeAtPath(data.path);
 
 			if (node) {
 				mesh.broadcast({
-					type: 'set',
-					payload: node.toGraphJSON()
+					path: node.getPath(),
+					json: node.toJSON()
 				});
 			}
 		}

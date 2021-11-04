@@ -74,6 +74,7 @@
 			.get('turn')
 			.set(rng.fromArray(Object.keys(users)).unwrapOr(await getUserId()));
 		graph.get('rooms').get(roomId).get('started').set(true);
+		started = true;
 	};
 
 	let prevUserId: string;
