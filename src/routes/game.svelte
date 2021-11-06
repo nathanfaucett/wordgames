@@ -40,7 +40,7 @@
 	import { getWord, Words } from '$lib/state/words';
 	import { userId } from '$lib/state/userId';
 	import { sortById } from '$lib/util';
-	import { IGetValue, Ref } from '@aicacia/graph';
+	import { Ref } from '@aicacia/graph';
 
 	export let roomId: string;
 
@@ -48,6 +48,7 @@
 		goto(`${base}/lobby?room=${roomId}`);
 	}
 
+	$: currentUserId = $userId;
 	$: room = graph.get('rooms').get(roomId);
 
 	let users: IUsers = {};
@@ -59,7 +60,7 @@
 	let started = true;
 	let playing = false;
 	let turn = '';
-	$: isYourTurn = turn === $userId;
+	$: isYourTurn = turn === currentUserId;
 	let timer = 0;
 	let word = '';
 
@@ -73,26 +74,26 @@
 	let showQrCode = false;
 	let showExit = false;
 
-	async function onStart() {
+	$: onStart = async () => {
 		await onSkipWord();
 		room.get('playing').set(true);
-	}
-	async function onSkipWord() {
+	};
+	$: onSkipWord = async () => {
 		const rng = XorShiftRng.fromSeed(seed),
 			word = await getWord(rng, words);
 
 		room.get('word').set(word);
 		room.get('seed').set(rng.nextInt());
-	}
-	async function onNext() {
+	};
+	$: onNext = async () => {
 		const [turnId] = userList[(userList.findIndex(([id]) => turn === id) + 1) % userList.length];
 		room.get('turn').set(turnId);
 		ticking.stop();
 		await onSkipWord();
-	}
+	};
 
 	let timerInterval: unknown | undefined;
-	function startTimer(startTime: number = DEFAULT_TIME) {
+	$: startTimer = (startTime: number = DEFAULT_TIME) => {
 		if (timerInterval != null) {
 			return;
 		}
@@ -113,9 +114,9 @@
 			ticking.play();
 		}
 		room.get('timer').set(startTime);
-	}
+	};
 
-	function stopTimer() {
+	$: stopTimer = () => {
 		if (timerInterval == null) {
 			return;
 		}
@@ -135,7 +136,7 @@
 
 		ticking.stop();
 		alarm.play();
-	}
+	};
 
 	onMount(() => {
 		const removeCallbacks = [
@@ -169,7 +170,7 @@
 			room.get('users').on(async (state) => {
 				users = (
 					await Promise.all(
-						Object.entries(state).map(([id, user]: [string, IGetValue]) => {
+						Object.values(state).map((user) => {
 							if (user instanceof Ref) {
 								return user.then<IUser>();
 							} else {
@@ -183,6 +184,12 @@
 				}, {} as IUsers);
 			})
 		];
+
+		setTimeout(() => {
+			if (userList.length < 2) {
+				started = false;
+			}
+		}, 3000);
 
 		return () => {
 			ticking.stop();
@@ -211,12 +218,12 @@
 	</div>
 	<h1
 		class="text-center text-white rounded py-4 my-4"
-		class:bg-blue-500={users[$userId]?.team === 'team1'}
-		class:bg-red-500={users[$userId]?.team === 'team2'}
+		class:bg-blue-500={users[currentUserId]?.team === 'team1'}
+		class:bg-red-500={users[currentUserId]?.team === 'team2'}
 	>
 		{#if isYourTurn}
 			Your Turn
-		{:else if users[$userId]?.team === users[turn]?.team}
+		{:else if users[currentUserId]?.team === users[turn]?.team}
 			{users[turn]?.name} and your Team's turn
 		{:else}
 			{users[turn]?.name}'s turn

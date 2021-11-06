@@ -12,6 +12,31 @@
 			}
 		};
 	}
+
+	function onShare() {
+		if (navigator && navigator.share) {
+			navigator
+				.share({
+					title: document.title,
+					text: 'Join my Game!',
+					url: location.href
+				})
+				.then(() => createToast('Successful shared!', 'success'))
+				.catch((err) => createToast(err.message, 'error'));
+		} else if (navigator && navigator.clipboard) {
+			navigator.clipboard
+				.writeText(location.href)
+				.then(() => createToast('Successful Copied!', 'success'));
+		} else if ('execCommand' in document) {
+			const element = document.createElement('input');
+			element.style.display = 'none';
+			element.textContent = location.href;
+			document.body.appendChild(element);
+			element.select();
+			document.execCommand('copy');
+			document.body.removeChild(element);
+		}
+	}
 </script>
 
 <script lang="ts">
@@ -29,13 +54,13 @@
 	import { getUserId, userId } from '$lib/state/userId';
 	import { createToast } from '$lib/state/toasts';
 	import { onMount } from 'svelte';
-	import type { IGetValue } from '@aicacia/graph';
 	import { Ref } from '@aicacia/graph';
 
 	export let roomId: string;
 
+	$: currentUserId = $userId;
 	$: room = graph.get('rooms').get(roomId);
-	$: user = room.get('users').get($userId);
+	$: user = room.get('users').get(currentUserId);
 
 	$: if (browser && started) {
 		goto(`${base}/game?room=${roomId}`);
@@ -69,14 +94,13 @@
 
 	$: onStartGame = async () => {
 		const rng = XorShiftRng.fromSeed(seed);
-		room.get('turn').set(rng.fromArray(Object.keys(users)).unwrapOr(await getUserId()));
+		room.get('turn').set(rng.fromArray(Object.keys(users)).unwrapOr(currentUserId));
 		room.get('started').set(true);
-		starting = true;
 	};
 
 	let prevUserId: string;
-	$: if ($userId && prevUserId !== $userId) {
-		const id = $userId;
+	$: if (currentUserId && prevUserId !== currentUserId) {
+		const id = currentUserId;
 		if (prevUserId) {
 			room.get('users').get(prevUserId).set(null);
 		}
@@ -86,31 +110,6 @@
 			team: 'team1'
 		});
 		prevUserId = id;
-	}
-
-	function onShare() {
-		if (navigator && navigator.share) {
-			navigator
-				.share({
-					title: document.title,
-					text: 'Join my Game!',
-					url: location.href
-				})
-				.then(() => createToast('Successful shared!', 'success'))
-				.catch((err) => createToast(err.message, 'error'));
-		} else if (navigator && navigator.clipboard) {
-			navigator.clipboard
-				.writeText(location.href)
-				.then(() => createToast('Successful Copied!', 'success'));
-		} else {
-			const element = document.createElement('input');
-			element.style.display = 'none';
-			element.textContent = location.href;
-			document.body.appendChild(element);
-			element.select();
-			document.execCommand('copy');
-			document.body.removeChild(element);
-		}
 	}
 
 	onMount(() => {
@@ -127,7 +126,7 @@
 			room.get('users').on(async (state) => {
 				users = (
 					await Promise.all(
-						Object.entries(state).map(([id, user]: [string, IGetValue]) => {
+						Object.values(state).map((user) => {
 							if (user instanceof Ref) {
 								return user.then<IUser>();
 							} else {
@@ -181,7 +180,7 @@
 	</div>
 	<div class="mt-2 mb-2">
 		<h2 class="text-center">
-			Teams (You are on {users[$userId]?.team === 'team1' ? 'Blue' : 'Red'})
+			Teams (You are on {users[currentUserId]?.team === 'team1' ? 'Blue' : 'Red'})
 		</h2>
 		<div class="mt-2 mb-2 flex justify-center">
 			<div class="btn md primary flex-1 text-center">
@@ -192,7 +191,7 @@
 			</div>
 		</div>
 		{#each userList as [id, user], index (id + user.team)}
-			<div class="flex justify-between" class:bg-gray-200={id === $userId}>
+			<div class="flex justify-between" class:bg-gray-200={id === currentUserId}>
 				<div class="flex-grow">
 					<p class="text-2xl p-1 font-bold">{index + 1} - {user.name}</p>
 				</div>
