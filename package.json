@@ -51,10 +51,10 @@
 		"typescript": "^4.4.4"
 	},
 	"dependencies": {
-		"@aicacia/core": "^0.2.13",
-		"@aicacia/graph": "github:aicacia/ts-graph#e5650519b973a7519424c540b7e919f0a6010f6b",
+		"@aicacia/range": "^0.1.0",
+		"@aicacia/graph": "github:aicacia/ts-graph#d5c0e515e54fc63dbb560faf7e7a4eb567f9de75",
 		"@aicacia/mesh": "github:aicacia/ts-mesh#0bb2ab394fd404e631f3a3db6d02a1088ff923c3",
-		"@aicacia/rand": "^0.2.7",
+		"@aicacia/rand": "^0.2.8",
 		"eventemitter3": "^4.0.7",
 		"howler": "^2.2.3",
 		"localforage": "^1.10.0",
