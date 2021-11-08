@@ -168,17 +168,7 @@
 				timer = state as number;
 			}),
 			room.get('users').on(async (state) => {
-				users = (
-					await Promise.all(
-						Object.values(state).map((user) => {
-							if (user instanceof Ref) {
-								return user.then<IUser>();
-							} else {
-								return user as unknown as IUser;
-							}
-						})
-					)
-				).reduce((acc, user) => {
+				users = (await Promise.all(Object.values(state))).reduce((acc, user) => {
 					acc[user.id] = user;
 					return acc;
 				}, {} as IUsers);

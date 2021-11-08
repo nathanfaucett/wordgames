@@ -36,10 +36,6 @@ export type IState = {
 
 export const graph = new Graph<IState>();
 
-if (typeof window !== 'undefined') {
-	(window as any).graph = graph;
-}
-
 let mesh: Mesh;
 
 graph
