@@ -5,7 +5,7 @@
 	"scripts": {
 		"tauri": "tauri",
 		"svelte-kit": "svelte-kit",
-		"clean": "rm -rf node_modules/.vite .svelte-kit build radata",
+		"clean": "rm -rf node_modules/.vite .svelte-kit build",
 		"web": "svelte-kit dev --host --open",
 		"web.build": "svelte-kit build",
 		"web.preview": "svelte-kit preview",
@@ -52,7 +52,7 @@
 	},
 	"dependencies": {
 		"@aicacia/range": "^0.1.0",
-		"@aicacia/graph": "github:aicacia/ts-graph#6e893f7402662922f163f04f4e4a7e98202864a1",
+		"@aicacia/graph": "github:aicacia/ts-graph#38a912cb862cd77d079bafec86da1657cb89e41c",
 		"@aicacia/mesh": "github:aicacia/ts-mesh#0bb2ab394fd404e631f3a3db6d02a1088ff923c3",
 		"@aicacia/rand": "^0.2.8",
 		"eventemitter3": "^4.0.7",
