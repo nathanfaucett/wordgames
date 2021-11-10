@@ -54,7 +54,6 @@
 	import { getUserId, userId } from '$lib/state/userId';
 	import { createToast } from '$lib/state/toasts';
 	import { onMount } from 'svelte';
-	import { Ref } from '@aicacia/graph';
 
 	export let roomId: string;
 
