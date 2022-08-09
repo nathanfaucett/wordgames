@@ -1,15 +1,13 @@
 <script context="module" lang="ts">
-	export const prerender = true;
-
-	export function load(input: LoadInput) {
-		const roomId = input.url.searchParams.get('room');
+	export const load: Load = (event) => {
+		const roomId = event.url.searchParams.get('room');
 
 		return {
 			props: {
 				roomId
 			}
 		};
-	}
+	};
 
 	function onShare() {
 		if (navigator && navigator.share) {
@@ -49,10 +47,10 @@
 	import { Words } from '$lib/state/words';
 	import { XorShiftRng } from '@aicacia/rand';
 	import { generateRoomId, sortById } from '$lib/util';
-	import { getUserId, userId } from '$lib/state/userId';
+	import { userId } from '$lib/state/userId';
 	import { createToast } from '$lib/state/toasts';
 	import { onMount } from 'svelte';
-	import type { LoadInput } from '@sveltejs/kit/types/internal';
+	import type { Load } from '@sveltejs/kit/types/internal';
 
 	export let roomId: string;
 
@@ -100,7 +98,10 @@
 	$: if (currentUserId && prevUserId !== currentUserId) {
 		const id = currentUserId;
 		if (prevUserId) {
-			room.get('users').get(prevUserId).set(null);
+			room
+				.get('users')
+				.get(prevUserId)
+				.set(null as any);
 		}
 		room.get('users').get(id).set({
 			id,
@@ -122,19 +123,22 @@
 				words = state as Words;
 			}),
 			room.get('users').on(async (state) => {
+				if (!state) {
+					return;
+				}
 				users = (await Promise.all(Object.values(state))).reduce((acc, user) => {
-					acc[user.id] = user;
+					if (user) {
+						acc[user.id] = user;
+					}
 					return acc;
 				}, {} as IUsers);
 			})
 		];
 
-		getUserId().then((id) => {
-			room.get('users').get(id).set({
-				id,
-				name: username,
-				team: 'team1'
-			});
+		room.get('users').get(currentUserId).set({
+			id: currentUserId,
+			name: username,
+			team: 'team1'
 		});
 
 		return () => {

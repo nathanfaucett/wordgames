@@ -36,25 +36,10 @@ export type IState = {
 
 export const graph = new Graph<IState>();
 
-let mesh: Mesh;
-
-graph
-	.on('set', (path, json) => {
-		mesh.broadcast({
-			path,
-			json
-		});
-	})
-	.on('get', (path) => {
-		mesh.broadcast({
-			path
-		});
-	});
-
 if (browser) {
 	const peer = new Peer(window.io('wss://mesh.aicacia.com/io-github-wordgames'), window.SimplePeer);
+	const mesh = new Mesh(peer);
 
-	mesh = new Mesh(peer);
 	mesh.on('data', (data) => {
 		if ('json' in data) {
 			graph.merge(data.path, data.json);
@@ -69,4 +54,17 @@ if (browser) {
 			}
 		}
 	});
+
+	graph
+		.on('set', (path, json) => {
+			mesh.broadcast({
+				path,
+				json
+			});
+		})
+		.on('get', (path) => {
+			mesh.broadcast({
+				path
+			});
+		});
 }

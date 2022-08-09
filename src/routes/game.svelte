@@ -1,15 +1,13 @@
 <script context="module" lang="ts">
-	export const prerender = true;
-
-	export function load(input: LoadInput) {
-		const roomId = input.url.searchParams.get('room');
+	export const load: Load = (event) => {
+		const roomId = event.url.searchParams.get('room');
 
 		return {
 			props: {
 				roomId
 			}
 		};
-	}
+	};
 
 	const DEFAULT_TIME = 30;
 
@@ -38,7 +36,7 @@
 	import { getWord, Words } from '$lib/state/words';
 	import { userId } from '$lib/state/userId';
 	import { sortById } from '$lib/util';
-	import type { LoadInput } from '@sveltejs/kit/types/internal';
+	import type { Load } from '@sveltejs/kit';
 
 	export let roomId: string;
 
@@ -166,8 +164,13 @@
 				timer = state as number;
 			}),
 			room.get('users').on(async (state) => {
+				if (!state) {
+					return;
+				}
 				users = (await Promise.all(Object.values(state))).reduce((acc, user) => {
-					acc[user.id] = user;
+					if (user) {
+						acc[user.id] = user;
+					}
 					return acc;
 				}, {} as IUsers);
 			})
