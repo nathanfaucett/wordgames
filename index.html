@@ -3,73 +3,40 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<script defer src="https://unpkg.com/qrious@4.0/dist/qrious.min.js"></script>
+		<link rel="icon" href="/wordgames/favicon.png" />
+		<link rel="manifest" href="/wordgames/manifest.json" />
+		<script defer src="https://unpkg.com/qrious@4/dist/qrious.min.js"></script>
 		<script defer src="https://unpkg.com/simple-peer@9/simplepeer.min.js"></script>
-		<title>Word Games!</title><link rel="icon" href="/wordgames/favicon.png" data-svelte="svelte-jebwb2"><link rel="manifest" href="/wordgames/manifest.json" data-svelte="svelte-jebwb2">
-
-		
-
-		<link rel="modulepreload" href="/wordgames/_app/start-39e8dfb0.js">
-		<link rel="modulepreload" href="/wordgames/_app/chunks/vendor-2d4221cb.js">
-		<link rel="modulepreload" href="/wordgames/_app/chunks/preload-helper-ac1c8acd.js">
-		<link rel="modulepreload" href="/wordgames/_app/chunks/singletons-12a22614.js">
-		<link rel="modulepreload" href="/wordgames/_app/chunks/paths-28a87002.js">
-		<link rel="modulepreload" href="/wordgames/_app/pages/__layout.svelte-ad5917be.js">
-		<link rel="modulepreload" href="/wordgames/_app/pages/index.svelte-1f4e7472.js">
-		<link rel="modulepreload" href="/wordgames/_app/chunks/util-f1ec02fc.js">
-		<link rel="stylesheet" href="/wordgames/_app/assets/start-464e9d0a.css">
-		<link rel="stylesheet" href="/wordgames/_app/assets/pages/__layout.svelte-5454e9cb.css">
-
-		<script type="module">
-			import { start } from "/wordgames/_app/start-39e8dfb0.js";
-			start({
-				target: document.querySelector("#app"),
-				paths: {"base":"/wordgames","assets":""},
-				session: {},
-				host: location.host,
-				route: true,
-				spa: false,
-				trailing_slash: "never",
-				hydrate: {
-					status: 200,
-					error: null,
-					nodes: [
-						import("/wordgames/_app/pages/__layout.svelte-ad5917be.js"),
-						import("/wordgames/_app/pages/index.svelte-1f4e7472.js")
-					],
-					page: {
-						host: location.host, // TODO this is redundant
-						path: "\u002F",
-						query: new URLSearchParams(""),
-						params: {}
-					}
-				}
-			});
-		</script><script>
-			if ('serviceWorker' in navigator) {
+		<script defer src="https://unpkg.com/socket.io-client@4/dist/socket.io.min.js"></script>
+		<meta http-equiv="content-security-policy" content="">
+	<link rel="modulepreload" href="/wordgames/internal/immutable/start-ff2c0377.js">
+	<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/index-275a10fd.js">
+	<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/singletons-80e721ca.js">
+	<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/preload-helper-362d4722.js">
+			<script>
+		if ('serviceWorker' in navigator) {
+			addEventListener('load', function () {
 				navigator.serviceWorker.register('/wordgames/service-worker.js');
-			}
-		</script>
+			});
+		}
+	</script>
 	</head>
 	<body>
 		<div id="app">
+		<script type="module" data-sveltekit-hydrate="45h">
+		import { set_public_env, start } from "/wordgames/internal/immutable/start-ff2c0377.js";
 
+		set_public_env({});
 
-
-
-
-
-<div class="h-screen w-screen bg-gray-100"><div class="mx-auto h-screen flex flex-col max-w-md px-4"><a class="text-6xl bold mt-2 mb-8 text-center" href="/wordgames/">WordGames!</a>
-
-	<button class="btn lg primary block">Create a Game</button>
-	<div class="flex mt-8"><input class="input flex-grow" type="text" placeholder="Join a Game with a Room Id">
-		</div></div></div>
-
-<div class="p-2 absolute bottom-0 w-full"></div>
-
-
-
-			
-		</div>
+		start({
+			target: document.querySelector('[data-sveltekit-hydrate="45h"]').parentNode,
+			paths: {"base":"/wordgames","assets":"/wordgames"},
+			session: {},
+			route: true,
+			spa: true,
+			trailing_slash: "never",
+			hydrate: null
+		});
+	</script></div>
 	</body>
 </html>
