@@ -1,5 +1,5 @@
 const l = [
-  "/wordgames/internal/immutable/start-ff2c0377.js",
+  "/wordgames/internal/immutable/start-191007ff.js",
   "/wordgames/internal/immutable/pages/__layout.svelte-3cdd55db.js",
   "/wordgames/internal/immutable/assets/__layout-abec3685.css",
   "/wordgames/internal/immutable/error.svelte-8201d305.js",
@@ -23,7 +23,7 @@ const l = [
   "/wordgames/sounds/alarm-clock.wav",
   "/wordgames/sounds/ticking.mp3",
   "/wordgames/sounds/ticking.wav"
-], c = "1660086262055", n = self, o = `cache${c}`, r = l.concat(m), d = new Set(r);
+], c = "1660086360397", n = self, o = `cache${c}`, r = l.concat(m), d = new Set(r);
 n.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(o).then((s) => s.addAll(r)).then(() => {
