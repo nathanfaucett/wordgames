@@ -4,6 +4,8 @@
 	import Layout from '$lib/Layout.svelte';
 	import { generateRoomId } from '$lib/util';
 
+	export const prerender = true;
+
 	let roomId: string;
 
 	function onHost() {

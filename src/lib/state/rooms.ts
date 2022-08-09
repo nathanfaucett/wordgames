@@ -52,9 +52,7 @@ graph
 	});
 
 if (browser) {
-	const peer = new Peer(window.SimplePeer, {
-		namespace: 'io-github-wordgames'
-	});
+	const peer = new Peer(window.io('wss://mesh.aicacia.com/io-github-wordgames'), window.SimplePeer);
 
 	mesh = new Mesh(peer);
 	mesh.on('data', (data) => {

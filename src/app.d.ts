@@ -1,7 +1,16 @@
 /// <reference types="@sveltejs/kit" />
 
 import type SimplePeer from 'simple-peer';
+import type io from 'socket.io-client';
 
+// See https://kit.svelte.dev/docs/types#the-app-namespace
+// for information about these interfaces
+declare namespace App {
+	// interface Locals {}
+	// interface Platform {}
+	// interface Session {}
+	// interface Stuff {}
+}
 declare global {
 	interface ImportMetaEnv {
 		VITE_PEER_HOST: string;
@@ -36,6 +45,7 @@ declare global {
 	}
 
 	interface Window {
+		io: typeof io;
 		SimplePeer: SimplePeer.SimplePeer;
 		QRious: typeof QRious;
 	}

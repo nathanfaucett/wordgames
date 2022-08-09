@@ -1,10 +1,8 @@
 <script context="module" lang="ts">
-	import type { LoadInput } from '@sveltejs/kit';
-
-	export const ssr = false;
+	export const prerender = true;
 
 	export function load(input: LoadInput) {
-		const roomId = input.page.query.get('room');
+		const roomId = input.url.searchParams.get('room');
 
 		return {
 			props: {
@@ -54,6 +52,7 @@
 	import { getUserId, userId } from '$lib/state/userId';
 	import { createToast } from '$lib/state/toasts';
 	import { onMount } from 'svelte';
+	import type { LoadInput } from '@sveltejs/kit/types/internal';
 
 	export let roomId: string;
 
@@ -227,7 +226,9 @@
 
 <Modal bind:show={showQrCode}>
 	<h2 slot="title">Room Id {roomId}</h2>
-	<QrCode value={location.href} />
+	{#if typeof location !== 'undefined'}
+		<QrCode value={location.href} />
+	{/if}
 </Modal>
 
 <Modal bind:show={showExit}>

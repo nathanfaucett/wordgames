@@ -1,10 +1,8 @@
 <script context="module" lang="ts">
-	import type { LoadInput } from '@sveltejs/kit';
-
-	export const ssr = false;
+	export const prerender = true;
 
 	export function load(input: LoadInput) {
-		const roomId = input.page.query.get('room');
+		const roomId = input.url.searchParams.get('room');
 
 		return {
 			props: {
@@ -40,7 +38,7 @@
 	import { getWord, Words } from '$lib/state/words';
 	import { userId } from '$lib/state/userId';
 	import { sortById } from '$lib/util';
-	import { Ref } from '@aicacia/graph';
+	import type { LoadInput } from '@sveltejs/kit/types/internal';
 
 	export let roomId: string;
 
