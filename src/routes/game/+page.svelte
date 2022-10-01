@@ -1,14 +1,4 @@
 <script context="module" lang="ts">
-	export const load: Load = (event) => {
-		const roomId = event.url.searchParams.get('room');
-
-		return {
-			props: {
-				roomId
-			}
-		};
-	};
-
 	const DEFAULT_TIME = 30;
 
 	const alarm = new Howl({
@@ -26,7 +16,6 @@
 	import { base } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import Layout from '$lib/Layout.svelte';
-	import { browser } from '$app/env';
 	import Timer from '$lib/Timer.svelte';
 	import Modal from '$lib/Modal.svelte';
 	import QrCode from '$lib/QRCode.svelte';
@@ -36,11 +25,12 @@
 	import { getWord, Words } from '$lib/state/words';
 	import { userId } from '$lib/state/userId';
 	import { sortById } from '$lib/util';
-	import type { Load } from '@sveltejs/kit';
+	import { browser } from '$app/environment';
 
-	export let roomId: string;
+	let url: URL | undefined;
+	let roomId = '';
 
-	$: if (browser && !started) {
+	$: if (browser && !started && roomId) {
 		goto(`${base}/lobby?room=${roomId}`);
 	}
 
@@ -135,6 +125,9 @@
 	};
 
 	onMount(() => {
+		url = new URL(window.location.href);
+		roomId = url.searchParams.get('roomId') || '';
+
 		const removeCallbacks = [
 			room.get('seed').on((state) => {
 				seed = state as number;
@@ -256,7 +249,9 @@
 
 <Modal bind:show={showQrCode}>
 	<h2 slot="title">Room Id {roomId}</h2>
-	<QrCode value={location.href} />
+	{#if url}
+		<QrCode value={url.href} />
+	{/if}
 </Modal>
 
 <Modal bind:show={showExit}>

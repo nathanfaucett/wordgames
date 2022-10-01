@@ -1,14 +1,4 @@
 <script context="module" lang="ts">
-	export const load: Load = (event) => {
-		const roomId = event.url.searchParams.get('room');
-
-		return {
-			props: {
-				roomId
-			}
-		};
-	};
-
 	function onShare() {
 		if (navigator && navigator.share) {
 			navigator
@@ -38,7 +28,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import Layout from '$lib/Layout.svelte';
-	import { browser } from '$app/env';
 	import { base } from '$app/paths';
 	import Modal from '$lib/Modal.svelte';
 	import QrCode from '$lib/QRCode.svelte';
@@ -50,15 +39,16 @@
 	import { userId } from '$lib/state/userId';
 	import { createToast } from '$lib/state/toasts';
 	import { onMount } from 'svelte';
-	import type { Load } from '@sveltejs/kit/types/internal';
+	import { browser } from '$app/environment';
 
-	export let roomId: string;
+	let url: URL | undefined;
+	let roomId = '';
 
 	$: currentUserId = $userId;
 	$: room = graph.get('rooms').get(roomId);
 	$: user = room.get('users').get(currentUserId);
 
-	$: if (browser && started) {
+	$: if (browser && started && roomId) {
 		goto(`${base}/game?room=${roomId}`);
 	}
 
@@ -112,6 +102,9 @@
 	}
 
 	onMount(() => {
+		url = new URL(window.location.href);
+		roomId = url.searchParams.get('roomId') || '';
+
 		const removeCallbacks = [
 			room.get('seed').on((state) => {
 				seed = state as number;
@@ -230,8 +223,8 @@
 
 <Modal bind:show={showQrCode}>
 	<h2 slot="title">Room Id {roomId}</h2>
-	{#if typeof location !== 'undefined'}
-		<QrCode value={location.href} />
+	{#if url}
+		<QrCode value={url.href} />
 	{/if}
 </Modal>
 

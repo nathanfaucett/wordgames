@@ -24,7 +24,7 @@
 			"resources": [],
 			"externalBin": [],
 			"copyright": "",
-			"category": "DeveloperTool",
+			"category": "WordGame",
 			"shortDescription": "",
 			"longDescription": "",
 			"deb": {
@@ -49,7 +49,7 @@
 			"active": false
 		},
 		"allowlist": {
-			"all": true
+			"all": false
 		},
 		"windows": [
 			{

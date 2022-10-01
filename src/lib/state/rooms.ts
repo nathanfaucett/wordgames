@@ -1,7 +1,7 @@
+import { browser } from '$app/environment';
 import { Graph } from '@aicacia/graph';
 import { Peer, Mesh } from '@aicacia/mesh';
 import type { Words } from './words';
-import { browser } from '$app/env';
 
 export type IUser = {
 	id: string;
@@ -37,7 +37,12 @@ export type IState = {
 export const graph = new Graph<IState>();
 
 if (browser) {
-	const peer = new Peer(window.io('wss://mesh.aicacia.com/io-github-wordgames'), window.SimplePeer);
+	const peer = new Peer(
+		window.io('wss://mesh.aicacia.com/io-github-wordgames', {
+			withCredentials: true
+		}),
+		window.SimplePeer
+	);
 	const mesh = new Mesh(peer);
 
 	mesh.on('data', (data) => {

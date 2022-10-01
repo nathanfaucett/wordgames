@@ -20,7 +20,7 @@
 <Layout>
 	<a class="text-6xl bold mt-2 mb-8 text-center" href={`${base}/`}>WordGames!</a>
 
-	<button class="btn lg primary block" on:click={onHost}>Create a Game</button>
+	<button class="btn lg primary block" on:click={onHost}>Start a new Game</button>
 	<div class="flex mt-8">
 		<input
 			class="input flex-grow"
