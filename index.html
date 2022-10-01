@@ -9,34 +9,30 @@
 		<script defer src="https://unpkg.com/simple-peer@9/simplepeer.min.js"></script>
 		<script defer src="https://unpkg.com/socket.io-client@4/dist/socket.io.min.js"></script>
 		<meta http-equiv="content-security-policy" content="">
-	<link rel="modulepreload" href="/wordgames/internal/immutable/start-191007ff.js">
-	<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/index-275a10fd.js">
-	<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/singletons-80e721ca.js">
-	<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/preload-helper-362d4722.js">
-			<script>
-		if ('serviceWorker' in navigator) {
-			addEventListener('load', function () {
-				navigator.serviceWorker.register('/wordgames/service-worker.js');
-			});
-		}
-	</script>
+		<link rel="modulepreload" href="/wordgames/internal/immutable/start-98c0c9f6.js">
+		<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/preload-helper-0ffe6af8.js">
+		<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/index-321b22c2.js">
+		<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/singletons-22490379.js">
+		<script>
+			if ('serviceWorker' in navigator) {
+				addEventListener('load', function () {
+					navigator.serviceWorker.register('/wordgames/service-worker.js');
+				});
+			}
+		</script>
 	</head>
 	<body>
 		<div id="app">
 		<script type="module" data-sveltekit-hydrate="45h">
-		import { set_public_env, start } from "/wordgames/internal/immutable/start-191007ff.js";
+			import { start } from "/wordgames/internal/immutable/start-98c0c9f6.js";
 
-		set_public_env({});
-
-		start({
-			target: document.querySelector('[data-sveltekit-hydrate="45h"]').parentNode,
-			paths: {"base":"/wordgames","assets":"/wordgames"},
-			session: {},
-			route: true,
-			spa: true,
-			trailing_slash: "never",
-			hydrate: null
-		});
-	</script></div>
+			start({
+				env: {},
+				hydrate: null,
+				paths: {"base":"/wordgames","assets":"/wordgames"},
+				target: document.querySelector('[data-sveltekit-hydrate="45h"]').parentNode,
+				trailing_slash: "never"
+			});
+		</script></div>
 	</body>
 </html>
