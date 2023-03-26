@@ -40,16 +40,16 @@
 	import { createToast } from '$lib/state/toasts';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
+	import type { PageData } from './$types';
 
-	let url: URL | undefined;
-	let roomId = '';
+	export let data: PageData;
 
 	$: currentUserId = $userId;
-	$: room = graph.get('rooms').get(roomId);
+	$: room = graph.get('rooms').get(data.room);
 	$: user = room.get('users').get(currentUserId);
 
-	$: if (browser && started && roomId) {
-		goto(`${base}/game?room=${roomId}`);
+	$: if (browser && started && data.room) {
+		goto(`${base}/game?room=${data.room}`);
 	}
 
 	let users: IUsers = {};
@@ -102,9 +102,6 @@
 	}
 
 	onMount(() => {
-		url = new URL(window.location.href);
-		roomId = url.searchParams.get('roomId') || '';
-
 		const removeCallbacks = [
 			room.get('seed').on((state) => {
 				seed = state as number;
@@ -141,12 +138,12 @@
 </script>
 
 <svelte:head>
-	<title>Word Games!: Lobby {roomId}</title>
+	<title>Word Games!: Lobby {data.room}</title>
 </svelte:head>
 
 <Layout>
 	<h1 class="text-center cursor-pointer" on:click={() => (showQrCode = true)}>
-		Room Id {roomId}
+		Room Id {data.room}
 	</h1>
 	<div class="mt-2">
 		<label for="name">Name</label>
@@ -161,7 +158,7 @@
 		</select>
 	</div>
 	<div class="flex">
-		<button class="btn md primary w-full mb-2" on:click={onShare}>Share Game {roomId}</button>
+		<button class="btn md primary w-full mb-2" on:click={onShare}>Share Game {data.room}</button>
 	</div>
 	<div class="mt-2 mb-2">
 		<h2 class="text-center">
@@ -222,9 +219,9 @@
 </Layout>
 
 <Modal bind:show={showQrCode}>
-	<h2 slot="title">Room Id {roomId}</h2>
-	{#if url}
-		<QrCode value={url.href} />
+	<h2 slot="title">Room Id {data.room}</h2>
+	{#if browser}
+		<QrCode value={window.location.href} />
 	{/if}
 </Modal>
 

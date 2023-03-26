@@ -26,16 +26,16 @@
 	import { userId } from '$lib/state/userId';
 	import { sortById } from '$lib/util';
 	import { browser } from '$app/environment';
+	import type { PageData } from './$types';
 
-	let url: URL | undefined;
-	let roomId = '';
+	export let data: PageData;
 
-	$: if (browser && !started && roomId) {
-		goto(`${base}/lobby?room=${roomId}`);
+	$: if (browser && !started && data.room) {
+		goto(`${base}/lobby?room=${data.room}`);
 	}
 
 	$: currentUserId = $userId;
-	$: room = graph.get('rooms').get(roomId);
+	$: room = graph.get('rooms').get(data.room);
 
 	let users: IUsers = {};
 	$: userList = Array.from(Object.entries(users)).sort(sortById) as [id: string, user: IUser][];
@@ -125,9 +125,6 @@
 	};
 
 	onMount(() => {
-		url = new URL(window.location.href);
-		roomId = url.searchParams.get('roomId') || '';
-
 		const removeCallbacks = [
 			room.get('seed').on((state) => {
 				seed = state as number;
@@ -184,12 +181,12 @@
 </script>
 
 <svelte:head>
-	<title>Word Games!: Playing Game in {roomId}</title>
+	<title>Word Games!: Playing Game in {data.room}</title>
 </svelte:head>
 
 <Layout>
 	<h1 class="text-center cursor-pointer" on:click={() => (showQrCode = true)}>
-		Room Id {roomId}
+		Room Id {data.room}
 	</h1>
 
 	<div class="flex justify-center mt-2">
@@ -248,9 +245,9 @@
 </Layout>
 
 <Modal bind:show={showQrCode}>
-	<h2 slot="title">Room Id {roomId}</h2>
-	{#if url}
-		<QrCode value={url.href} />
+	<h2 slot="title">Room Id {data.room}</h2>
+	{#if browser}
+		<QrCode value={window.location.href} />
 	{/if}
 </Modal>
 

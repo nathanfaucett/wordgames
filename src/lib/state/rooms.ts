@@ -39,6 +39,7 @@ export const graph = new Graph<IState>();
 if (browser) {
 	const peer = new Peer(
 		window.io('wss://mesh.aicacia.com/io-github-wordgames', {
+			transports: ['websocket'],
 			withCredentials: true
 		}),
 		window.SimplePeer

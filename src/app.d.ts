@@ -12,11 +12,6 @@ declare namespace App {
 	// interface Stuff {}
 }
 declare global {
-	interface ImportMetaEnv {
-		VITE_PEER_HOST: string;
-		VITE_PEER_PORT: string;
-	}
-
 	interface IQRiousOptions {
 		background?: string;
 		backgroundAlpha?: number;
