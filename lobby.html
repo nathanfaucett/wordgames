@@ -3,86 +3,43 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="icon" href="/wordgames/favicon.png" />
-		<link rel="manifest" href="/wordgames/manifest.json" />
+		<link rel="icon" href="./favicon.png" />
+		<link rel="manifest" href="./manifest.json" />
 		<script defer src="https://unpkg.com/qrious@4/dist/qrious.min.js"></script>
 		<script defer src="https://unpkg.com/simple-peer@9/simplepeer.min.js"></script>
 		<script defer src="https://unpkg.com/socket.io-client@4/dist/socket.io.min.js"></script>
-		<meta http-equiv="content-security-policy" content=""><title>Word Games!: Lobby </title>
-		<link href="/wordgames/internal/immutable/assets/_layout-50843def.css" rel="stylesheet">
-		<link rel="modulepreload" href="/wordgames/internal/immutable/start-98c0c9f6.js">
-		<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/preload-helper-0ffe6af8.js">
-		<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/index-321b22c2.js">
-		<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/singletons-22490379.js">
-		<link rel="modulepreload" href="/wordgames/internal/immutable/components/pages/_layout.svelte-23e861a5.js">
-		<link rel="modulepreload" href="/wordgames/internal/immutable/modules/pages/_layout.ts-ccf77788.js">
-		<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/_layout-c2405b24.js">
-		<link rel="modulepreload" href="/wordgames/internal/immutable/components/pages/lobby/_page.svelte-ab853c2b.js">
-		<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/util-663ac0af.js">
-		<link rel="modulepreload" href="/wordgames/internal/immutable/chunks/userId-5a5ee24e.js">
-		<script>
-			if ('serviceWorker' in navigator) {
-				addEventListener('load', function () {
-					navigator.serviceWorker.register('/wordgames/service-worker.js');
-				});
-			}
-		</script>
+		<meta http-equiv="content-security-policy" content="">
+		<link rel="modulepreload" href="./internal/immutable/entry/start.7d9224d8.js">
+		<link rel="modulepreload" href="./internal/immutable/chunks/index.8f7fe7b1.js">
+		<link rel="modulepreload" href="./internal/immutable/chunks/singletons.61a91846.js">
+		<link rel="modulepreload" href="./internal/immutable/entry/app.67fc0ed6.js">
+		<link rel="modulepreload" href="./internal/immutable/chunks/preload-helper.41c905a7.js">
 	</head>
 	<body>
 		<div id="app">
+			<script>
+				{
+					__sveltekit_gqoy1p = {
+						env: {},
+						assets: "/wordgames",
+						base: new URL(".", location).pathname.slice(0, -1),
+						element: document.currentScript.parentElement
+					};
 
+					Promise.all([
+						import("./internal/immutable/entry/start.7d9224d8.js"),
+						import("./internal/immutable/entry/app.67fc0ed6.js")
+					]).then(([kit, app]) => {
+						kit.start(app, __sveltekit_gqoy1p.element);
+					});
 
-
-
-<div class="h-screen w-screen bg-gray-100"><div class="mx-auto h-screen flex flex-col max-w-md px-4"><h1 class="text-center cursor-pointer">Room Id </h1>
-	<div class="mt-2"><label for="name">Name</label>
-		<input class="input" value="guest-tecqfv9"></div>
-	<div><label for="words">Words</label>
-		<select id="words" value="medium" class="input"><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option><option value="all">All</option></select></div>
-	<div class="flex"><button class="btn md primary w-full mb-2">Share Game </button></div>
-	<div class="mt-2 mb-2"><h2 class="text-center">Teams (You are on Red)
-		</h2>
-		<div class="mt-2 mb-2 flex justify-center"><div class="btn md primary flex-1 text-center">0</div>
-			<div class="btn md danger flex-1 text-center">0</div></div>
+					if ('serviceWorker' in navigator) {
+						addEventListener('load', function () {
+							navigator.serviceWorker.register('./service-worker.js');
+						});
+					}
+				}
+			</script>
 		</div>
-	<div class="flex-grow"></div>
-	<div class="flex justify-center"><button class="btn lg primary flex-1 bg-blue-100" disabled>Start</button>
-		<button class="btn lg danger flex-1">Leave</button></div></div></div>
-
-<div class="p-2 absolute bottom-0 w-full"></div>
-
-<div class="overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center flex hidden"><div class="relative w-auto my-6 mx-auto max-w-md"><div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none"><div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t"><div><h2 slot="title">Room Id </h2></div>
-				<button class="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"><span class="bg-transparent text-black h-6 w-6 text-2xl block outline-none focus:outline-none">×
-					</span></button></div>
-			<div class="relative p-6 flex-auto"></div></div></div></div>
-<div class="opacity-25 fixed inset-0 z-40 bg-black hidden"></div>
-
-<div class="overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none justify-center items-center flex hidden"><div class="relative w-auto my-6 mx-auto max-w-md"><div class="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none"><div class="flex items-start justify-between p-5 border-b border-solid border-blueGray-200 rounded-t"><div></div>
-				<button class="p-1 ml-auto bg-transparent border-0 text-black float-right text-3xl leading-none font-semibold outline-none focus:outline-none"><span class="bg-transparent text-black h-6 w-6 text-2xl block outline-none focus:outline-none">×
-					</span></button></div>
-			<div class="relative p-6 flex-auto"><a href="/wordgames/" class="btn lg danger">Exit</a></div></div></div></div>
-<div class="opacity-25 fixed inset-0 z-40 bg-black hidden"></div>
-
-
-		<script type="module" data-sveltekit-hydrate="jqg2gj">
-			import { start } from "/wordgames/internal/immutable/start-98c0c9f6.js";
-
-			start({
-				env: {},
-				hydrate: {
-					status: 200,
-					error: null,
-					node_ids: [0, 4],
-					params: {},
-					routeId: "lobby",
-					data: (function(a){return [a,a]}(null)),
-					form: null
-				},
-				paths: {"base":"/wordgames","assets":"/wordgames"},
-				target: document.querySelector('[data-sveltekit-hydrate="jqg2gj"]').parentNode,
-				trailing_slash: "never"
-			});
-		</script>
-	</div>
 	</body>
 </html>

@@ -1,69 +1,74 @@
-const i = [
-  "/wordgames/internal/immutable/start-98c0c9f6.js",
-  "/wordgames/internal/immutable/components/pages/_layout.svelte-23e861a5.js",
-  "/wordgames/internal/immutable/assets/_layout-50843def.css",
-  "/wordgames/internal/immutable/components/error.svelte-060ce551.js",
-  "/wordgames/internal/immutable/components/pages/_page.svelte-6f8e5d75.js",
-  "/wordgames/internal/immutable/components/pages/game/_page.svelte-c32e3ff0.js",
-  "/wordgames/internal/immutable/components/pages/lobby/_page.svelte-ab853c2b.js",
-  "/wordgames/internal/immutable/modules/pages/_layout.ts-ccf77788.js",
-  "/wordgames/internal/immutable/chunks/singletons-22490379.js",
-  "/wordgames/internal/immutable/chunks/preload-helper-0ffe6af8.js",
-  "/wordgames/internal/immutable/chunks/index-321b22c2.js",
-  "/wordgames/internal/immutable/chunks/_layout-c2405b24.js",
-  "/wordgames/internal/immutable/chunks/util-663ac0af.js",
-  "/wordgames/internal/immutable/chunks/userId-5a5ee24e.js",
-  "/wordgames/internal/immutable/chunks/0-18f2ad58.js",
-  "/wordgames/internal/immutable/chunks/1-574a9362.js",
-  "/wordgames/internal/immutable/chunks/2-d10aac58.js",
-  "/wordgames/internal/immutable/chunks/3-1a5007d3.js",
-  "/wordgames/internal/immutable/chunks/4-1d529a46.js",
-  "/wordgames/internal/immutable/chunks/easy-d6952d4b.js",
-  "/wordgames/internal/immutable/chunks/medium-27fe57e1.js",
-  "/wordgames/internal/immutable/chunks/hard-6fdf5c11.js"
-], l = [
-  "/wordgames/favicon.png",
-  "/wordgames/icon.png",
-  "/wordgames/manifest.json",
-  "/wordgames/robots.txt",
-  "/wordgames/sounds/alarm-clock.mp3",
-  "/wordgames/sounds/alarm-clock.wav",
-  "/wordgames/sounds/ticking.mp3",
-  "/wordgames/sounds/ticking.wav"
-], c = "1664630620117", n = self, o = `cache${c}`, r = i.concat(l), d = new Set(r);
-n.addEventListener("install", (e) => {
-  e.waitUntil(
-    caches.open(o).then((s) => s.addAll(r)).then(() => {
-      n.skipWaiting();
+const e = /* @__PURE__ */ location.pathname.split("/").slice(0, -1).join("/"), o = [
+  e + "/internal/immutable/entry/app.67fc0ed6.js",
+  e + "/internal/immutable/chunks/0.bcc0c1e2.js",
+  e + "/internal/immutable/chunks/1.072cecf1.js",
+  e + "/internal/immutable/chunks/2.4cb203bf.js",
+  e + "/internal/immutable/chunks/3.c5b0e673.js",
+  e + "/internal/immutable/chunks/4.fa42c3b8.js",
+  e + "/internal/immutable/chunks/_layout.7e4796dc.js",
+  e + "/internal/immutable/chunks/_page.5206eea5.js",
+  e + "/internal/immutable/chunks/_page.7a3e9c64.js",
+  e + "/internal/immutable/chunks/index.8f7fe7b1.js",
+  e + "/internal/immutable/chunks/preload-helper.41c905a7.js",
+  e + "/internal/immutable/chunks/singletons.61a91846.js",
+  e + "/internal/immutable/chunks/userId.0c95ee66.js",
+  e + "/internal/immutable/chunks/util.54d134f6.js",
+  e + "/internal/immutable/entry/start.7d9224d8.js",
+  e + "/internal/immutable/entry/error.svelte.bd830b0c.js",
+  e + "/internal/immutable/chunks/easy.9068188d.js",
+  e + "/internal/immutable/chunks/hard.a9247d9f.js",
+  e + "/internal/immutable/chunks/medium.4a4f834a.js",
+  e + "/internal/immutable/assets/_layout.825a6408.css",
+  e + "/internal/immutable/entry/_layout.svelte.525d1110.js",
+  e + "/internal/immutable/entry/_layout.ts.a21eebba.js",
+  e + "/internal/immutable/entry/_page.svelte.44a8d552.js",
+  e + "/internal/immutable/entry/game-page.svelte.2d7a4f79.js",
+  e + "/internal/immutable/entry/game-page.ts.0960a549.js",
+  e + "/internal/immutable/entry/lobby-page.svelte.eea1eac5.js",
+  e + "/internal/immutable/entry/lobby-page.ts.0960a549.js"
+], u = [
+  e + "/favicon.png",
+  e + "/icon.png",
+  e + "/manifest.json",
+  e + "/robots.txt",
+  e + "/sounds/alarm-clock.mp3",
+  e + "/sounds/alarm-clock.wav",
+  e + "/sounds/ticking.mp3",
+  e + "/sounds/ticking.wav"
+], i = "1679838217754", c = self, l = `cache${i}`, r = o.concat(u), h = new Set(r);
+c.addEventListener("install", (t) => {
+  t.waitUntil(
+    caches.open(l).then((a) => a.addAll(r)).then(() => {
+      c.skipWaiting();
     })
   );
 });
-n.addEventListener("activate", (e) => {
-  e.waitUntil(
-    caches.keys().then(async (s) => {
-      for (const a of s)
-        a !== o && await caches.delete(a);
-      n.clients.claim();
+c.addEventListener("activate", (t) => {
+  t.waitUntil(
+    caches.keys().then(async (a) => {
+      for (const n of a)
+        n !== l && await caches.delete(n);
+      c.clients.claim();
     })
   );
 });
-async function u(e) {
-  const s = await caches.open(`offline${c}`);
+async function b(t) {
+  const a = await caches.open(`offline${i}`);
   try {
-    const a = await fetch(e);
-    return s.put(e, a.clone()), a;
-  } catch (a) {
-    const t = await s.match(e);
-    if (t)
-      return t;
-    throw a;
+    const n = await fetch(t);
+    return a.put(t, n.clone()), n;
+  } catch (n) {
+    const s = await a.match(t);
+    if (s)
+      return s;
+    throw n;
   }
 }
-n.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET" || e.request.headers.has("range"))
+c.addEventListener("fetch", (t) => {
+  if (t.request.method !== "GET" || t.request.headers.has("range"))
     return;
-  const s = new URL(e.request.url), a = s.hostname === self.location.hostname && s.port !== self.location.port, t = s.host === self.location.host && d.has(s.pathname), m = e.request.cache === "only-if-cached" && !t;
-  !a && !m && e.respondWith(
-    (async () => t && await caches.match(e.request) || u(e.request))()
+  const a = new URL(t.request.url), n = a.hostname === self.location.hostname && a.port !== self.location.port, s = a.host === self.location.host && h.has(a.pathname), m = t.request.cache === "only-if-cached" && !s;
+  !n && !m && t.respondWith(
+    (async () => s && await caches.match(t.request) || b(t.request))()
   );
 });
