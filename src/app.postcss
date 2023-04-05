@@ -3,56 +3,85 @@
 @tailwind utilities;
 
 @layer base {
+	html,
+	body,
+	#app {
+		@apply relative flex flex-col w-screen h-screen bg-gray-100 dark:bg-gray-800 text-black dark:text-white overflow-hidden;
+	}
+
+	select {
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		background: transparent;
+		background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+		background-repeat: no-repeat;
+		background-position-x: 100%;
+		background-position-y: 5px;
+	}
+	input,
+	select {
+		@apply px-3 py-2 rounded-none text-black dark:text-white bg-gray-100 dark:bg-gray-700 text-sm outline-none focus:outline-none;
+	}
+	input[disabled],
+	select[disabled] {
+		@apply opacity-50 cursor-not-allowed;
+	}
+	input[type='checkbox'] {
+		@apply ml-0 mr-4 my-3 text-black;
+	}
+	textarea {
+		@apply px-3 py-2 resize-y text-black dark:text-white bg-gray-100 dark:bg-gray-700 text-sm outline-none focus:outline-none;
+	}
+	textarea[disabled] {
+		@apply opacity-50;
+	}
+
 	h1 {
-		@apply text-4xl;
+		@apply text-5xl;
 	}
 	h2 {
-		@apply text-2xl;
+		@apply text-4xl;
 	}
 	h3 {
-		@apply text-xl;
+		@apply text-3xl;
 	}
 	h4 {
-		@apply text-lg;
+		@apply text-2xl;
 	}
 	h5 {
-		@apply text-base;
+		@apply text-xl;
 	}
 	h6 {
-		@apply text-sm;
+		@apply text-lg;
 	}
 }
 
 @layer components {
 	.btn {
-		@apply text-center bg-gray-500 text-white active:bg-gray-600 font-bold uppercase rounded shadow hover:shadow-md outline-none focus:outline-none ease-linear transition-all duration-150;
+		@apply text-base no-underline px-3 py-2 text-center font-bold uppercase outline-none focus:outline-none ease-linear transition-all duration-150 cursor-pointer shadow hover:shadow-md;
 	}
 	.btn[disabled] {
 		@apply opacity-50 cursor-not-allowed;
 	}
-	.btn.sm {
-		@apply text-xs px-4 py-2;
-	}
-	.btn.md {
-		@apply text-sm px-6 py-3;
-	}
-	.btn.lg {
-		@apply text-base px-8 py-3;
-	}
 	.btn.primary {
-		@apply bg-blue-500 text-white active:bg-blue-600;
+		@apply bg-blue-500 text-white hover:bg-blue-700;
+	}
+	.btn.primary.active {
+		@apply bg-blue-700;
+	}
+	.btn.secondary {
+		@apply bg-white text-black hover:bg-gray-200;
+	}
+	.btn.secondary.active {
+		@apply bg-gray-200;
 	}
 	.btn.danger {
-		@apply bg-red-500 text-white active:bg-red-600;
+		@apply bg-red-500 text-white hover:bg-red-700;
 	}
-
-	.input {
-		@apply px-3 py-3 text-gray-600 relative bg-white rounded text-sm shadow outline-none focus:outline-none w-full;
+	.btn.danger.active {
+		@apply bg-red-700;
 	}
-	.input.sm {
-		@apply px-2 py-1;
-	}
-	.input.lg {
-		@apply px-3 py-4;
+	.btn.icon {
+		@apply p-1;
 	}
 }

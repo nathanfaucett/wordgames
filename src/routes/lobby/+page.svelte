@@ -145,13 +145,18 @@
 	<h1 class="text-center cursor-pointer" on:click={() => (showQrCode = true)}>
 		Room Id {data.room}
 	</h1>
-	<div class="mt-2">
-		<label for="name">Name</label>
-		<input class="input" bind:value={username} on:input={onChangeName} />
+	<div class="mt-2 flex flex-row">
+		<label for="name" class="flex flex-shrink">Name</label>
+		<input class="flex-grow" bind:value={username} on:input={onChangeName} />
 	</div>
-	<div>
-		<label for="words">Words</label>
-		<select id="words" value={words} on:change|preventDefault={onSelectWords} class="input">
+	<div class="mt-2 flex flex-row">
+		<label for="words" class="flex flex-shrink">Words</label>
+		<select
+			id="words"
+			class="input flex-grow"
+			value={words}
+			on:change|preventDefault={onSelectWords}
+		>
 			{#each Object.keys(Words) as word}
 				<option value={Words[word]}>{word}</option>
 			{/each}

@@ -2,10 +2,8 @@
 	import Toast from '$lib/Toast.svelte';
 </script>
 
-<div class="h-screen w-screen bg-gray-100">
-	<div class="mx-auto h-screen flex flex-col max-w-md px-4">
-		<slot />
-	</div>
+<div class="mx-auto flex flex-col max-w-md w-full bg-white shadow p-4 my-4">
+	<slot />
 </div>
 
 <Toast />
