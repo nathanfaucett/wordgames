@@ -1,30 +1,30 @@
 const e = /* @__PURE__ */ location.pathname.split("/").slice(0, -1).join("/"), o = [
-  e + "/internal/immutable/entry/app.bd8ca869.js",
-  e + "/internal/immutable/chunks/0.51277eef.js",
-  e + "/internal/immutable/chunks/1.2c0f4194.js",
-  e + "/internal/immutable/chunks/2.0b3d463f.js",
-  e + "/internal/immutable/chunks/3.f994dfcf.js",
-  e + "/internal/immutable/chunks/4.5bf99986.js",
+  e + "/internal/immutable/entry/app.f21925f7.js",
+  e + "/internal/immutable/chunks/0.baf69e1f.js",
+  e + "/internal/immutable/chunks/1.dda7d542.js",
+  e + "/internal/immutable/chunks/2.5d2e4f99.js",
+  e + "/internal/immutable/chunks/3.e455aaef.js",
+  e + "/internal/immutable/chunks/4.b6474ef2.js",
   e + "/internal/immutable/chunks/_layout.7e4796dc.js",
   e + "/internal/immutable/chunks/_page.5206eea5.js",
   e + "/internal/immutable/chunks/_page.7a3e9c64.js",
   e + "/internal/immutable/chunks/index.e9f15bb7.js",
   e + "/internal/immutable/chunks/preload-helper.41c905a7.js",
-  e + "/internal/immutable/chunks/singletons.cf31626e.js",
-  e + "/internal/immutable/chunks/userId.133a977e.js",
-  e + "/internal/immutable/chunks/util.a05a6e2b.js",
-  e + "/internal/immutable/entry/start.29e33eb3.js",
-  e + "/internal/immutable/entry/error.svelte.04911d46.js",
+  e + "/internal/immutable/chunks/singletons.cbb839a7.js",
+  e + "/internal/immutable/chunks/userId.aee05d52.js",
+  e + "/internal/immutable/chunks/util.0eda97c8.js",
+  e + "/internal/immutable/entry/start.3a2ddca6.js",
+  e + "/internal/immutable/entry/error.svelte.dfa32e1d.js",
   e + "/internal/immutable/chunks/easy.9068188d.js",
   e + "/internal/immutable/chunks/hard.a9247d9f.js",
   e + "/internal/immutable/chunks/medium.4a4f834a.js",
-  e + "/internal/immutable/assets/_layout.5645f4eb.css",
-  e + "/internal/immutable/entry/_layout.svelte.afe077d6.js",
+  e + "/internal/immutable/assets/_layout.1ecdd4a4.css",
+  e + "/internal/immutable/entry/_layout.svelte.c926483f.js",
   e + "/internal/immutable/entry/_layout.ts.a21eebba.js",
-  e + "/internal/immutable/entry/_page.svelte.aa242727.js",
-  e + "/internal/immutable/entry/game-page.svelte.3c477cde.js",
+  e + "/internal/immutable/entry/_page.svelte.6497a7cb.js",
+  e + "/internal/immutable/entry/game-page.svelte.7dcfe50d.js",
   e + "/internal/immutable/entry/game-page.ts.0960a549.js",
-  e + "/internal/immutable/entry/lobby-page.svelte.769be575.js",
+  e + "/internal/immutable/entry/lobby-page.svelte.45274b96.js",
   e + "/internal/immutable/entry/lobby-page.ts.0960a549.js"
 ], u = [
   e + "/favicon.png",
@@ -35,7 +35,7 @@ const e = /* @__PURE__ */ location.pathname.split("/").slice(0, -1).join("/"), o
   e + "/sounds/alarm-clock.wav",
   e + "/sounds/ticking.mp3",
   e + "/sounds/ticking.wav"
-], c = "1680655278477", i = self, l = `cache${c}`, r = o.concat(u), h = new Set(r);
+], c = "1680692721507", i = self, l = `cache${c}`, r = o.concat(u), h = new Set(r);
 i.addEventListener("install", (t) => {
   t.waitUntil(
     caches.open(l).then((a) => a.addAll(r)).then(() => {
