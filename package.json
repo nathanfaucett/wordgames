@@ -20,7 +20,7 @@
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^2.0.1",
-		"@sveltejs/kit": "^1.15.1",
+		"@sveltejs/kit": "^1.15.2",
 		"@tauri-apps/api": "^1.2.0",
 		"@tauri-apps/cli": "^1.2.3",
 		"@types/howler": "^2.2.7",
@@ -50,7 +50,7 @@
 		"@aicacia/rand": "^0.2.12",
 		"@aicacia/range": "^0.1.4",
 		"howler": "^2.2.3",
-		"svelte-localstorage-writable": "^0.1.0",
+		"svelte-localstorage-writable": "^0.1.1",
 		"uuid": "^9.0.0"
 	}
 }
