@@ -1,16 +1,22 @@
+const plugin = require('tailwindcss/plugin');
+
 /** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 const config = {
-	mode: 'jit',
 	content: ['./src/**/*.{html,js,svelte,ts}'],
 	theme: {
 		screens: {
 			sm: '320px',
-			md: '640px',
-			lg: '968px',
-			xl: '1440px'
+			md: '480px',
+			lg: '768px',
+			xl: '1024px'
 		}
 	},
-	plugins: []
+	plugins: [
+		plugin(({ addVariant }) => {
+			addVariant('optional', '&:optional');
+			addVariant('group-optional', ':merge(.group):optional &');
+		})
+	]
 };
 
 module.exports = config;

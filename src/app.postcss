@@ -6,7 +6,11 @@
 	html,
 	body,
 	#app {
-		@apply relative flex flex-col w-screen h-screen bg-gray-100 dark:bg-gray-800 text-black dark:text-white overflow-hidden;
+		@apply relative flex flex-col w-screen h-screen bg-gray-100 dark:bg-gray-950 text-black dark:text-white overflow-hidden;
+	}
+	body {
+		padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+			env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
 	}
 
 	select {
@@ -19,21 +23,20 @@
 		background-position-y: 5px;
 	}
 	input,
-	select {
-		@apply px-3 py-2 rounded-none text-black dark:text-white bg-gray-100 dark:bg-gray-700 text-sm outline-none focus:outline-none;
+	select,
+	textarea {
+		@apply px-3 py-2 rounded-none shadow-inner text-black dark:text-white bg-gray-100 dark:bg-gray-700 text-sm outline-none focus:outline-none;
 	}
 	input[disabled],
-	select[disabled] {
+	select[disabled],
+	textarea[disabled] {
 		@apply opacity-50 cursor-not-allowed;
 	}
 	input[type='checkbox'] {
 		@apply ml-0 mr-4 my-3 text-black;
 	}
 	textarea {
-		@apply px-3 py-2 resize-y text-black dark:text-white bg-gray-100 dark:bg-gray-700 text-sm outline-none focus:outline-none;
-	}
-	textarea[disabled] {
-		@apply opacity-50;
+		@apply resize-y;
 	}
 
 	h1 {

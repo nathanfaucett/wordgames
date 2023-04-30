@@ -1,0 +1,4 @@
+/src/main/java/com/aicacia/aicacia_wordgames/generated
+/src/main/jniLibs/**/*.so
+/tauri.build.gradle.kts
+/proguard-tauri.pro

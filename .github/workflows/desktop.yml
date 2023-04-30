@@ -16,15 +16,15 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: 16.x
+          node-version: 19.x
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
       - if: matrix.platform == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y webkit2gtk-4.0
-      - run: npm install -g npm@8.16.0
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+      - run: npm install -g npm@9
       - run: npm ci
       - run: npm run desktop.build
       - id: tag
